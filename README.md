@@ -51,14 +51,20 @@ The platform focuses on:
 ## 📂 Project Structure
 
 visitsikkim_project/
-│
-├── main/ # Django app (models, views, urls)
-├── templates/ # HTML templates
-├── static/ # Static assets
-├── media/ # Uploaded images
-├── visitsikkim_project/ # Project settings
+
+├── main/  # Django app (models, views, urls)
+
+├── templates/  # HTML templates
+
+├── static/  # Static assets
+
+├── media/  # Uploaded images
+
+├── visitsikkim_project/  # Project settings
+
 ├── manage.py
-└── requirements.txt
+
+├── requirements.txt
 
 ---
 
@@ -92,8 +98,11 @@ Sensitive values are managed using environment variables.
 Example .env file (not included in repository):
 
 SECRET_KEY=your-secret-key
+
 DEBUG=True
+
 ALLOWED_HOSTS=*
+
 DATABASE_URL=your-database-url (optional)
 
 
@@ -119,7 +128,9 @@ DATABASE_URL=your-database-url (optional)
 
 
 ## 👤 Author
+
 Vishal Dhara
+
 Web & Data Engineering Enthusiast
 
 ## 📜 License
