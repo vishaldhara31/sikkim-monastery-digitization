@@ -11,14 +11,10 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")    
 
-# # Secret key & API keys
-# # SECRET_KEY = config("SECRET_KEY", default="django-insecure-CHANGE_ME")
-# SECRET_KEY = config("SECRET_KEY", default="django-insecure-CHANGE_ME")
-# # OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-# OPENAI_API_KEY = config("OPENAI_API_KEY")
+
 
 SECRET_KEY = config("SECRET_KEY", default="django-insecure-CHANGE_ME")
-OPENAI_API_KEY = config("OPENAI_API_KEY")
+
 
 # SECURITY WARNING: don’t run with debug turned on in production!
 DEBUG = config("DEBUG", default=True, cast=bool)
@@ -110,5 +106,6 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"                       
