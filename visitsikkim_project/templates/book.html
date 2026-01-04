@@ -1,0 +1,226 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book an Experience - Monastery360</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f7f5; }
+        .logo-font { font-family: 'Playfair Display', serif; }
+        .custom-gradient { background: linear-gradient(135deg, #134e4a 0%, #064e3b 100%); }
+        .nav-link { position: relative; }
+        .nav-link::after { content:''; position:absolute; width:0; height:2px; bottom:-4px; left:50%; transform:translateX(-50%); background:#0d9488; transition:width 0.3s ease; }
+        .nav-link:hover::after { width:100%; }
+    </style>
+</head>
+<body class="antialiased text-stone-700">
+
+<header class="bg-teal-900 sticky top-0 z-50 shadow-lg">
+    <nav class="container mx-auto px-6">
+        <div class="flex items-center justify-between h-20">
+            <a href="/" class="flex items-center space-x-3">
+                <span class="text-2xl font-bold text-white logo-font">Monastery360</span>
+            </a>
+            <div class="hidden md:flex items-center h-full">
+                <a href="/" class="text-stone-200 hover:text-white font-medium nav-link px-6">Home</a>
+                <a href="/events/" class="text-stone-200 hover:text-white font-medium nav-link px-6">Events</a>
+                <a href="/book/" class="text-white font-medium nav-link px-6">Book</a>
+                <a href="/travel/" class="text-stone-200 hover:text-white font-medium nav-link px-6">Travel</a>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <section class="relative h-[60vh] flex items-center justify-center overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <img src="{% static 'mo.jpg' %}" class="w-full h-full object-cover opacity-60" alt="Booking Background">
+            <div class="absolute inset-0 bg-gradient-to-b from-teal-900/40 to-[#f8f7f5]"></div>
+        </div>
+        <div class="relative z-10 text-center px-6">
+            <h1 class="text-5xl md:text-7xl font-bold logo-font text-teal-900 mb-4">Curated Journeys</h1>
+            <p class="text-xl text-teal-800 max-w-2xl mx-auto font-medium">Reserve your place in the sacred traditions of the Himalayas.</p>
+        </div>
+    </section>
+
+    <section class="py-20 container mx-auto px-6">
+        <div class="flex items-center space-x-4 mb-12">
+            <div class="h-1 w-12 bg-teal-600"></div>
+            <h2 class="text-2xl font-bold text-teal-900 uppercase tracking-widest">Available Experiences</h2>
+        </div>
+        
+        <div class="grid md:grid-cols-3 gap-10">
+            <div class="group bg-white rounded-3xl shadow-xl border border-stone-100 overflow-hidden hover:-translate-y-2 transition duration-300">
+                <div class="h-64 overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1544967082-d9d25d867d66?auto=format&fit=crop&w=800" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                </div>
+                <div class="p-8">
+                    <span class="text-xs font-bold text-teal-600 uppercase tracking-widest">Spirituality</span>
+                    <h3 class="text-2xl font-bold text-teal-900 mt-2 mb-3">Meditation Retreat</h3>
+                    <p class="text-stone-500 text-sm mb-6 leading-relaxed">A 3-day silent retreat guided by senior monks at Rumtek Monastery. Includes organic meals and lodging.</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xl font-bold text-teal-700">₹5,000 <span class="text-sm font-normal text-stone-400">/ person</span></span>
+                        <button class="bg-teal-900 text-white px-6 py-2 rounded-full text-sm font-bold hover:bg-teal-700 transition">Book</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="group bg-white rounded-3xl shadow-xl border border-stone-100 overflow-hidden hover:-translate-y-2 transition duration-300">
+                <div class="h-64 overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?auto=format&fit=crop&w=800" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                </div>
+                <div class="p-8">
+                    <span class="text-xs font-bold text-emerald-600 uppercase tracking-widest">Art & Craft</span>
+                    <h3 class="text-2xl font-bold text-teal-900 mt-2 mb-3">Thangka Painting</h3>
+                    <p class="text-stone-500 text-sm mb-6 leading-relaxed">Learn the ancient art of scroll painting from master artisans. All materials and lunch provided.</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xl font-bold text-teal-700">₹3,500 <span class="text-sm font-normal text-stone-400">/ person</span></span>
+                        <button class="bg-teal-900 text-white px-6 py-2 rounded-full text-sm font-bold hover:bg-teal-700 transition">Book</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="group bg-white rounded-3xl shadow-xl border border-stone-100 overflow-hidden hover:-translate-y-2 transition duration-300">
+                <div class="h-64 overflow-hidden">
+                    <img src="{% static 'butter.jpg' %}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                </div>
+                <div class="p-8">
+                    <span class="text-xs font-bold text-orange-600 uppercase tracking-widest">Culture</span>
+                    <h3 class="text-2xl font-bold text-teal-900 mt-2 mb-3">Butter Lamp Ritual</h3>
+                    <p class="text-stone-500 text-sm mb-6 leading-relaxed">Participate in an evening prayer ceremony at Enchey Monastery with traditional chanting.</p>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xl font-bold text-teal-700">₹1,200 <span class="text-sm font-normal text-stone-400">/ person</span></span>
+                        <button class="bg-teal-900 text-white px-6 py-2 rounded-full text-sm font-bold hover:bg-teal-700 transition">Book</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+   <section class="custom-gradient py-24 md:py-32 text-white">
+    <div class="container mx-auto px-8 md:px-12 max-w-6xl">
+        
+        <h2 class="text-4xl font-bold text-center logo-font mb-20 tracking-wide">
+            The Monastery360 Promise
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-12 text-center">
+            <div class="flex flex-col items-center group">
+                <div class="mb-6 p-4 rounded-full bg-white/10 group-hover:bg-white/20 transition">
+                    <i class="fa-solid fa-hand-holding-heart text-4xl text-teal-300"></i>
+                </div>
+                <h4 class="font-bold text-lg mb-3">Authentic Access</h4>
+                <p class="text-sm text-teal-100 leading-relaxed">Direct partnerships with monastic governing bodies.</p>
+            </div>
+
+            <div class="flex flex-col items-center group">
+                <div class="mb-6 p-4 rounded-full bg-white/10 group-hover:bg-white/20 transition">
+                    <i class="fa-solid fa-leaf text-4xl text-teal-300 "></i>
+                </div>
+                <h4 class="font-bold text-lg mb-3">Sustainable Travel</h4>
+                <p class="text-sm text-teal-100 leading-relaxed">80% of booking fees go directly to monastery upkeep.</p>
+            </div>
+
+            <div class="flex flex-col items-center group">
+                <div class="mb-6 p-4 rounded-full bg-white/10 group-hover:bg-white/20 transition">
+                    <i class="fa-solid fa-shield-halved text-4xl text-teal-300"></i>
+                </div>
+                <h4 class="font-bold text-lg mb-3">Safe & Respectful</h4>
+                <p class="text-sm text-teal-100 leading-relaxed">Guided by experts in Himalayan spiritual etiquette.</p>
+            </div>
+
+            <div class="flex flex-col items-center group">
+                <div class="mb-6 p-4 rounded-full bg-white/10 group-hover:bg-white/20 transition">
+                    <i class="fa-solid fa-calendar-check text-4xl text-teal-300"></i>
+                </div>
+                <h4 class="font-bold text-lg mb-3">Instant Confirmation</h4>
+                <p class="text-sm text-teal-100 leading-relaxed">Secure digital booking with real-time availability.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+        <section class="py-20 bg-stone-50">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center text-teal-900 logo-font mb-12">Voices of the Journey</h2>
+            <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                <div class="bg-white p-8 rounded-2xl shadow-sm italic text-stone-600 relative">
+                    <i class="fa-solid fa-quote-left text-teal-100 text-4xl absolute top-4 left-4"></i>
+                    <p class="relative z-10 mb-4">"The meditation retreat at Rumtek was a life-changing experience. The silence of the mountains combined with the wisdom of the monks provided a peace I hadn't felt in years."</p>
+                    <div class="text-teal-900 font-bold not-italic">— Sarah Jenkins, London</div>
+                </div>
+                <div class="bg-white p-8 rounded-2xl shadow-sm italic text-stone-600 relative">
+                    <i class="fa-solid fa-quote-left text-teal-100 text-4xl absolute top-4 left-4"></i>
+                    <p class="relative z-10 mb-4">"Learning Thangka painting from a master artist was incredible. Monastery360 handled all the logistics perfectly, letting me focus entirely on the art."</p>
+                    <div class="text-teal-900 font-bold not-italic">— David Chen, Singapore</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20 container mx-auto px-6 max-w-4xl">
+        <h2 class="text-3xl font-bold text-teal-900 logo-font mb-10 text-center">Frequently Asked Questions</h2>
+        <div class="space-y-4">
+            <details class="group bg-white border border-stone-200 rounded-xl overflow-hidden shadow-sm">
+                <summary class="flex justify-between items-center p-6 cursor-pointer font-bold text-teal-800 list-none">
+                    What should I wear when visiting the monasteries?
+                    <span class="transition group-open:rotate-180"><i class="fa-solid fa-chevron-down"></i></span>
+                </summary>
+                <div class="px-6 pb-6 text-stone-500 text-sm">
+                    Please wear modest clothing that covers your shoulders and knees. Respectful attire is mandatory for entry into sacred prayer halls.
+                </div>
+            </details>
+            <details class="group bg-white border border-stone-200 rounded-xl overflow-hidden shadow-sm">
+                <summary class="flex justify-between items-center p-6 cursor-pointer font-bold text-teal-800 list-none">
+                    Are the retreats suitable for beginners?
+                    <span class="transition group-open:rotate-180"><i class="fa-solid fa-chevron-down"></i></span>
+                </summary>
+                <div class="px-6 pb-6 text-stone-500 text-sm">
+                    Yes! Our experiences are designed for all levels. The monks provide gentle guidance for those new to meditation and Buddhist practices.
+                </div>
+            </details>
+            <details class="group bg-white border border-stone-200 rounded-xl overflow-hidden shadow-sm">
+                <summary class="flex justify-between items-center p-6 cursor-pointer font-bold text-teal-800 list-none">
+                    What is the cancellation policy?
+                    <span class="transition group-open:rotate-180"><i class="fa-solid fa-chevron-down"></i></span>
+                </summary>
+                <div class="px-6 pb-6 text-stone-500 text-sm">
+                    Cancellations made 7 days prior to the event are eligible for a full refund. 80% of your fee is still donated to the monastery regardless of attendance.
+                </div>
+            </details>
+        </div>
+    </section>
+
+    <section class="py-20 bg-teal-50">
+        <div class="container mx-auto px-6 text-center max-w-2xl">
+            <h2 class="text-3xl font-bold text-teal-900 logo-font mb-4">Stay Connected</h2>
+            <p class="text-stone-600 mb-8">Receive monthly updates on festival dates, new retreat openings, and stories from the monasteries.</p>
+            <form class="flex flex-col sm:flex-row gap-4">
+                <input type="email" placeholder="Your email address" class="flex-1 px-6 py-3 rounded-full border border-stone-200 focus:outline-none focus:ring-2 focus:ring-teal-500">
+                <button type="submit" class="bg-teal-600 text-white px-8 py-3 rounded-full font-bold hover:bg-teal-700 transition">Subscribe</button>
+            </form>
+        </div>
+    </section>
+    </section>
+</main>
+
+<footer class="bg-teal-950 text-stone-400 py-12 text-center">
+    <div class="container mx-auto px-6">
+        <p class="logo-font text-white text-xl mb-4">Monastery360</p>
+        <p class="text-xs uppercase tracking-widest mb-4">Established 2026 • Preservation through Technology</p>
+        <div class="flex justify-center space-x-6 text-xl mb-8">
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+        </div>
+        <p class="text-xs">&copy; 2026 Monastery360. All Rights Reserved.</p>
+    </div>
+</footer>
+
+</body>
+</html>

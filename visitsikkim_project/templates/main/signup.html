@@ -1,0 +1,169 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Monastery360</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f7f5; /* Stone 50 */
+            color: #333333;
+        }
+        .logo-font {
+            font-family: 'Playfair Display', serif;
+        }
+        .nav-link {
+            position: relative;
+        }
+        /* Navigation link hover effect (Teal) */
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #0d9488; /* Teal-600 */
+            transition: width 0.3s ease-in-out;
+        }
+        .nav-link:hover::after, .nav-link.active::after {
+            width: 100%;
+        }
+        /* Focus ring color changed to Teal-600 */
+        .input-focus-teal:focus {
+            outline: none;
+            border-color: #0d9488 !important; /* Teal-600 */
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.4); /* Teal-600 with opacity */
+        }
+    </style>
+</head>
+<body class="antialiased text-stone-700">
+
+<header class="bg-teal-900 sticky top-0 z-50 shadow-lg">
+    <nav class="container mx-auto px-6">
+        <div class="flex items-center justify-between h-20">
+            <a href="/" class="flex items-center space-x-3">
+                <img src="{% static 'Final LOGO (2).png' %}" alt="Monastery360 Logo" class="h-10 w-auto">
+                <span class="text-2xl font-bold text-white logo-font">Monastery360</span>
+            </a>
+            <div class="hidden md:flex items-center space-x-8 h-full">
+                <a href="/" class="text-stone-200 hover:text-white font-medium nav-link px-3 h-full flex items-center">Home</a>
+                <a href="#" class="text-stone-200 hover:text-white font-medium nav-link px-3 h-full flex items-center">About Us</a>
+            </div>
+            <div class="hidden md:flex items-center space-x-4">
+                <a href="/login/" class="bg-teal-600 text-white font-semibold px-5 py-2 rounded-lg hover:bg-teal-700 transition duration-300">Login</a>
+                <a href="/signup/" class="bg-stone-100 text-teal-900 font-semibold px-5 py-2 rounded-lg hover:bg-white transition duration-300 nav-link active">Sign Up</a>
+            </div>
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-white focus:outline-none">
+                    <i class="fa-solid fa-bars fa-lg"></i>
+                </button>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden mt-4 bg-teal-800 rounded-lg p-2">
+            <a href="/" class="block py-2 px-4 text-stone-200 hover:bg-teal-700 rounded">Home</a>
+            <a href="#" class="block py-2 px-4 text-stone-200 hover:bg-teal-700 rounded mt-2">About Us</a>
+            <a href="/login/" class="block mt-4 w-full text-center bg-teal-600 text-white font-semibold px-5 py-2 rounded-lg hover:bg-teal-700 transition duration-300">Login</a>
+            <a href="/signup/" class="block mt-2 w-full text-center bg-stone-100 text-teal-900 font-semibold px-5 py-2 rounded-lg hover:bg-white transition duration-300">Sign Up</a>
+        </div>
+    </nav>
+</header>
+
+<main class="min-h-[calc(100vh-140px)] flex items-center justify-center bg-stone-50 py-12">
+    <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md border-t-4 border-teal-600">
+        <h1 class="text-3xl font-bold text-teal-900 text-center mb-6 logo-font">Create a New Account</h1>
+        
+        <form method="post" action="/signup/">
+            {% csrf_token %}
+            
+            {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                <div class="p-3 text-sm text-center rounded-lg {% if message.tags == 'success' %}bg-teal-100 text-teal-700{% elif message.tags == 'error' %}bg-rose-100 text-rose-700{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="mb-4">
+                <label for="username" class="block text-stone-700 font-medium mb-2">Username</label>
+                <input type="text" id="username" name="username" class="w-full px-4 py-2 border rounded-lg focus:outline-none input-focus-teal" required>
+            </div>
+            <div class="mb-4">
+                <label for="email" class="block text-stone-700 font-medium mb-2">Email</label>
+                <input type="email" id="email" name="email" class="w-full px-4 py-2 border rounded-lg focus:outline-none input-focus-teal" required>
+            </div>
+            <div class="mb-4">
+                <label for="password" class="block text-stone-700 font-medium mb-2">Password</label>
+                <input type="password" id="password" name="password" class="w-full px-4 py-2 border rounded-lg focus:outline-none input-focus-teal" required>
+            </div>
+            <div class="mb-6">
+                <label for="password2" class="block text-stone-700 font-medium mb-2">Confirm Password</label>
+                <input type="password" id="password2" name="password2" class="w-full px-4 py-2 border rounded-lg focus:outline-none input-focus-teal" required>
+            </div>
+            <button type="submit" class="w-full bg-teal-600 text-white font-semibold py-3 rounded-lg hover:bg-teal-700 transition duration-300 shadow-md">Sign Up</button>
+        </form>
+
+        <p class="mt-6 text-center text-stone-600 text-sm">
+            Already have an account? 
+            <a href="/login/" class="font-semibold text-teal-600 hover:text-teal-700">Log In</a>
+        </p>
+    </div>
+</main>
+
+<footer class="bg-teal-900 text-stone-300">
+    <div class="container mx-auto px-6 py-12 grid md:grid-cols-4 gap-8">
+        <div>
+            <h3 class="font-bold text-white text-lg mb-4 logo-font">Monastery360</h3>
+            <p class="text-sm">Exploring the heritage and natural beauty of the Himalayas.</p>
+        </div>
+        <div>
+            <h3 class="font-bold text-white text-lg mb-4">Quick Links</h3>
+            <ul class="space-y-2 text-sm">
+                <li><a href="/" class="hover:text-white">Home</a></li>
+                <li><a href="#" class="hover:text-white">About Us</a></li>
+                <li><a href="#" class="hover:text-white">Contact</a></li>
+                <li><a href="#" class="hover:text-white">FAQ</a></li>
+            </ul>
+        </div>
+        <div>
+            <h3 class="font-bold text-white text-lg mb-4">Legal</h3>
+            <ul class="space-y-2 text-sm">
+                <li><a href="#" class="hover:text-white">Privacy Policy</a></li>
+                <li><a href="#" class="hover:text-white">Terms of Service</a></li>
+            </ul>
+        </div>
+        <div>
+            <h3 class="font-bold text-white text-lg mb-4">Follow Us</h3>
+            <div class="flex space-x-4">
+                <a href="#" class="text-xl hover:text-white"><i class="fab fa-facebook"></i></a>
+                <a href="#" class="text-xl hover:text-white"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="text-xl hover:text-white"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="text-xl hover:text-white"><i class="fab fa-youtube"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="mt-12 border-t border-teal-800 pt-8 text-center text-sm text-stone-400">
+        &copy; 2025 Monastery360. All Rights Reserved.
+    </div>
+</footer>
+
+<script>
+    // Mobile menu toggle
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+    mobileMenuButton.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+    });
+</script>
+
+</body>
+</html>

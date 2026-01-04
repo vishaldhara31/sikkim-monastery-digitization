@@ -1,0 +1,88 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Monastery360</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f7f5; /* Stone 50 */
+        }
+        .logo-font { 
+            font-family: 'Playfair Display', serif; 
+        }
+        .login-container {
+            /* Background image updated to use Django static tag with the correct image */
+            background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{% static "Phensong_Monastery.jpg" %}');
+            background-size: cover;
+            background-position: center;
+        }
+        /* Focus ring color changed to Teal-600 */
+        .input-focus-teal:focus {
+            outline: none;
+            border-color: #0d9488 !important; /* Teal-600 */
+            box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.4); /* Teal-600 with opacity */
+        }
+    </style>
+</head>
+<body class="antialiased text-stone-700">
+
+<div class="min-h-screen flex items-center justify-center login-container">
+    <div class="max-w-md w-full bg-white/90 backdrop-blur-sm rounded-xl shadow-2xl p-8 m-4">
+        <a href="/" class="flex justify-center items-center space-x-3 mb-8">
+            <img src="{% static 'Final LOGO (2).png' %}" alt="Monastery360 Logo" class="h-12 w-auto">
+            <span class="text-3xl font-bold text-teal-900 logo-font">Monastery360</span>
+        </a>
+
+        <h2 class="text-2xl font-bold text-center text-teal-800 mb-2">Welcome Back!</h2>
+        <p class="text-center text-stone-600 mb-8">Sign in to continue your journey.</p>
+
+        {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                    <div class="p-3 rounded-lg text-sm {% if message.tags == 'error' %} bg-red-100 text-red-700 {% else %} bg-teal-100 text-teal-700 {% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form action="{% url 'login' %}" method="POST">
+            {% csrf_token %}
+            <div class="space-y-6">
+                <div>
+                    <label for="username" class="block text-sm font-medium text-stone-700">Username</label>
+                    <input type="text" id="username" name="username" required
+                           class="mt-1 block w-full px-4 py-2 bg-white border border-stone-300 rounded-md shadow-sm placeholder-stone-400 focus:outline-none focus:ring-2 input-focus-teal">
+                </div>
+                <div>
+                    <label for="password" class="block text-sm font-medium text-stone-700">Password</label>
+                    <input type="password" id="password" name="password" required
+                           class="mt-1 block w-full px-4 py-2 bg-white border border-stone-300 rounded-md shadow-sm placeholder-stone-400 focus:outline-none focus:ring-2 input-focus-teal">
+                </div>
+                <div>
+                    <button type="submit"
+                            class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-bold text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-600 transition-colors duration-300">
+                        Sign In
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <div class="mt-6 text-center">
+            <p class="text-sm text-stone-600">
+                Don't have an account? 
+                <a href="{% url 'signup' %}" class="font-bold text-teal-600 hover:text-teal-700">Sign Up</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

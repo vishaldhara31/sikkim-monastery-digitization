@@ -1,0 +1,215 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Murals Archive - Monastery360</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f7f5; color: #333333; }
+        .logo-font { font-family: 'Playfair Display', serif; }
+        
+        /* Navigation Link Hover (Matching Header) */
+        .nav-link { position: relative; }
+        .nav-link::after { content:''; position:absolute; width:0; height:2px; bottom:-4px; left:50%; transform:translateX(-50%); background:#0d9488; transition:width 0.3s ease; } /* Teal-600 color */
+        .nav-link:hover::after, .nav-link.active::after { width:100%; }
+        .dropdown:hover .dropdown-menu { display: block; }
+        .dropdown-menu { display: none; animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px);} to { opacity: 1; transform: translateY(0);} }
+
+        /* Sidebar Styling (Updated to Teal) */
+        .sidebar-link { 
+            transition: all 0.2s ease-in-out; 
+            border-left-color: transparent; 
+        }
+        .sidebar-link.active, .sidebar-link:hover { 
+            color: #0f766e; /* Teal-700 */
+            border-left-color: #0d9488; /* Teal-600 */ 
+            background-color: #f0fdfa; /* Teal-50 */
+            transform: translateX(4px); 
+        }
+
+        /* Modal Styling */
+        #image-modal { transition: opacity 0.3s ease; }
+        .modal-content { animation: fadeInScale 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) forwards; }
+        @keyframes fadeInScale { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        html { scroll-behavior: smooth; }
+    </style>
+</head>
+<body class="antialiased text-stone-700">
+
+<header class="bg-teal-900 sticky top-0 z-50 shadow-lg">
+    <nav class="container mx-auto px-6">
+        <div class="flex items-center justify-between h-20">
+            <a href="/" class="flex items-center space-x-3">
+                <span class="text-2xl font-bold text-white logo-font">Monastery360</span>
+            </a>
+            <div class="hidden md:flex items-center h-full">
+                <a href="/" class="text-stone-200 hover:text-white font-medium nav-link px-6">Home</a>
+                <a href="/archives/" class="text-white font-medium nav-link px-6">Archives</a>
+                <a href="/manuscripts/" class="text-stone-200 hover:text-white font-medium nav-link px-6">Manuscripts</a>
+                <a href="/murals/" class="text-stone-200 hover:text-white font-medium nav-link px-6">Murals</a>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <section class="bg-teal-50 border-b border-teal-200 py-16">
+        <div class="container mx-auto px-6 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold text-teal-900 logo-font">Sacred Murals of Sikkim</h1>
+            <p class="mt-2 text-lg text-stone-600 max-w-3xl mx-auto">Digitized collections of breathtaking wall paintings and thangkas preserved within the monastery walls.</p>
+        </div>
+    </section>
+
+    <div class="container mx-auto px-6 py-12">
+        <div class="lg:flex lg:gap-12">
+            
+            <aside class="w-full lg:w-1/4 mb-8 lg:mb-0">
+                <div class="sticky top-24 bg-white p-6 rounded-xl shadow-lg border border-stone-200">
+                    <h2 class="logo-font text-2xl font-bold text-teal-800 border-b border-teal-200 pb-2 mb-4">Artworks in This Archive</h2>
+                    <nav id="sidebar-nav" class="flex flex-col space-y-1"></nav>
+                </div>
+            </aside>
+
+            <div id="main-content" class="w-full lg:w-3/4">
+                
+                <article id="guru-rinpoche" class="scroll-mt-24 mb-16 bg-white p-8 rounded-xl shadow-lg border-t-4 border-teal-600 border border-stone-200">
+                    <img src="{% static '1.jpg' %}" alt="The Life of Guru Rinpoche" class="w-full h-96 object-cover rounded-lg shadow-md cursor-pointer mb-6">
+                    <h1 class="logo-font text-4xl font-bold text-teal-800 mb-2">The Life of Guru Rinpoche</h1>
+                    <p class="text-stone-500 mb-6 font-medium">Located at Rumtek Monastery</p>
+                    <div class="space-y-4 text-stone-600 leading-relaxed">
+                        <p>This vast and intricate mural is a visual biography of **Guru Rinpoche**, also known as Padmasambhava, the "Lotus-Born" master who is revered as the second Buddha. Located in the main assembly hall, it serves as a source of inspiration and a teaching tool for monks and pilgrims alike. The artwork is executed in the traditional Tibetan style, characterized by its vibrant colors, precise line work, and sacred geometry.</p>
+                        <p>The paints are made from ground mineral pigments—lapis lazuli for blue, malachite for green, and cinnabar for red—mixed with animal glue, a technique that has allowed these artworks to endure for centuries. The mural is read from one section to the next, narrating key events such as the Guru's miraculous birth from a lotus flower, his subjugation of local deities who opposed Buddhism, and his establishment of the first monastery at Samye in Tibet. Studying this mural is an act of devotion, connecting the viewer to the very source of their faith.</p>
+                    </div>
+                </article>
+                
+                <article id="bhavacakra" class="scroll-mt-24 mb-16 bg-white p-8 rounded-xl shadow-lg border-t-4 border-teal-600 border border-stone-200">
+                    <img src="{% static 'Phensong_Monastery.jpg' %}" alt="The Wheel of Life" class="w-full h-96 object-cover rounded-lg shadow-md cursor-pointer mb-6">
+                    <h1 class="logo-font text-4xl font-bold text-teal-800 mb-2">The Wheel of Life (Bhavacakra)</h1>
+                    <p class="text-stone-500 mb-6 font-medium">Located at Pemayangtse Monastery</p>
+                    <div class="space-y-4 text-stone-600 leading-relaxed">
+                        <p>Often painted near the entrance of a monastery, the **Bhavacakra**, or Wheel of Life, is one of the most profound teaching murals in Buddhism. It is a symbolic representation of **samsara**—the endless, suffering-filled cycle of birth, death, and rebirth to which all beings are bound. The entire wheel is held in the clutches of **Yama**, the fearsome lord of death, symbolizing the impermanence and suffering inherent in worldly existence.</p>
+                        <p>The mural is divided into sections. At the hub are three animals—a pig, a snake, and a rooster—representing the three root poisons of ignorance, aversion, and attachment. The next layer depicts the six realms of existence: the realms of gods, demigods, humans, animals, hungry ghosts, and hell beings. The outer rim illustrates the twelve links of dependent origination, the chain of causation that traps beings in samsara. The mural serves as a powerful daily reminder to practitioners to strive for liberation from this cycle.</p>
+                    </div>
+                </article>
+                
+                <article id="mandala" class="scroll-mt-24 bg-white p-8 rounded-xl shadow-lg border-t-4 border-teal-600 border border-stone-200">
+                    <img src="{% static '3.jpg' %}" alt="Mandala of Compassion" class="w-full h-96 object-cover rounded-lg shadow-md cursor-pointer mb-6">
+                    <h1 class="logo-font text-4xl font-bold text-teal-800 mb-2">Mandala of Compassion</h1>
+                    <p class="text-stone-500 mb-6 font-medium">Located at Tashiding Monastery</p>
+                    <div class="space-y-4 text-stone-600 leading-relaxed">
+                        <p>A **mandala** is a sacred, spiritual, and ritual symbol in Buddhism, representing the universe and the celestial palace of a chosen deity. This particular mural depicts the mandala of **Avalokiteshvara**, the embodiment of the compassion of all Buddhas. It is not merely a painting but a two-dimensional architectural plan of a divine three-dimensional space, used as a focus for advanced meditation.</p>
+                        <p>Creating a mandala is a sacred act of devotion, often undertaken by a group of monks over several days or weeks. Every geometric shape, line, and color is laden with deep symbolic meaning, laid out according to strict scriptural guidelines. Practitioners visualize themselves entering the mandala, traversing its gates, and arriving at the center, where they merge with the deity. This process is a powerful method for internalizing the qualities of compassion and wisdom.</p>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div id="image-modal" class="hidden fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4">
+    <button id="close-image-modal-btn" class="absolute top-4 right-6 text-4xl text-white hover:text-teal-300">&times;</button>
+    <img id="modal-image-high-res" src="" class="max-w-[90vw] max-h-[90vh] object-contain modal-content">
+</div>
+
+<footer class="bg-teal-900 text-stone-300 mt-16">
+    <div class="container mx-auto px-6 py-12 grid md:grid-cols-4 gap-8">
+        <div>
+            <h3 class="font-bold text-white text-lg mb-4 logo-font">Monastery360</h3>
+            <p class="text-sm">Exploring the heritage and natural beauty of the Himalayas.</p>
+        </div>
+        <div>
+            <h3 class="font-bold text-white text-lg mb-4">Quick Links</h3>
+            <ul class="space-y-2 text-sm">
+                <li><a href="/" class="hover:text-white">Home</a></li>
+                <li><a href="#" class="hover:text-white">About Us</a></li>
+                <li><a href="#" class="hover:text-white">Contact</a></li>
+            </ul>
+        </div>
+        <div>
+            <h3 class="font-bold text-white text-lg mb-4">Legal</h3>
+            <ul class="space-y-2 text-sm">
+                <li><a href="#" class="hover:text-white">Privacy Policy</a></li>
+                <li><a href="#" class="hover:text-white">Terms of Service</a></li>
+            </ul>
+        </div>
+        <div>
+            <h3 class="font-bold text-white text-lg mb-4">Follow Us</h3>
+            <div class="flex space-x-4">
+                <a href="#" class="text-xl hover:text-white"><i class="fab fa-facebook"></i></a>
+                <a href="#" class="text-xl hover:text-white"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="text-xl hover:text-white"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="text-xl hover:text-white"><i class="fab fa-youtube"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="mt-12 border-t border-teal-800 pt-8 text-center text-sm text-stone-400">
+        &copy; 2025 Monastery360. All Rights Reserved.
+    </div>
+</footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const mainContent = document.getElementById('main-content');
+        const sidebarNav = document.getElementById('sidebar-nav');
+        const articles = mainContent.querySelectorAll('article');
+        
+        // Populate sidebar
+        articles.forEach(article => {
+            const title = article.querySelector('h1').textContent;
+            const link = document.createElement('a');
+            link.href = `#${article.id}`;
+            link.textContent = title;
+            // Updated sidebar link classes for teal theme
+            link.className = 'sidebar-link block text-stone-600 hover:text-teal-700 font-semibold py-2 px-3 border-l-4 -ml-px';
+            sidebarNav.appendChild(link);
+        });
+
+        const sidebarLinks = sidebarNav.querySelectorAll('a');
+        
+        // Highlight sidebar link on scroll
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                const id = entry.target.getAttribute('id');
+                const correspondingLink = sidebarNav.querySelector(`a[href="#${id}"]`);
+                if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+                    sidebarLinks.forEach(link => link.classList.remove('active'));
+                    correspondingLink.classList.add('active');
+                }
+            });
+        }, { rootMargin: '-50% 0px -50% 0px', threshold: 0.5 });
+
+        articles.forEach(article => observer.observe(article));
+
+        // Image modal logic
+        const imageModal = document.getElementById('image-modal');
+        const modalImage = document.getElementById('modal-image-high-res');
+        const closeImageModalBtn = document.getElementById('close-image-modal-btn');
+
+        mainContent.querySelectorAll('img').forEach(img => {
+            img.addEventListener('click', () => {
+                modalImage.src = img.src;
+                imageModal.classList.remove('hidden');
+            });
+        });
+
+        closeImageModalBtn.addEventListener('click', () => imageModal.classList.add('hidden'));
+        imageModal.addEventListener('click', (e) => {
+            if (e.target === imageModal) imageModal.classList.add('hidden');
+        });
+        
+        // Mobile Menu Toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        if (mobileMenuButton) {
+            mobileMenuButton.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+        }
+    });
+</script>
+</body> 
+</html>

@@ -1,0 +1,6 @@
+django
+pillow
+requests
+python-dotenv
+python-decouple
+psycopg2-binary

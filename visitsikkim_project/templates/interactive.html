@@ -1,0 +1,748 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore Sikkim - Interactive Tourist Map</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <style>
+        /* ========================================================= */
+        /* MONASTERY360 THEME VARIABLES (Teal/Stone)                 */
+        /* ========================================================= */
+        :root {
+            --background-light: #f8f7f5; /* Off-white / Stone-50 */
+            --primary-light: #ffffff;    /* Pure White */
+            --secondary-light: #e0e7e9;  /* Very Light Teal-100 */ 
+            --text-primary: #333333;     /* Dark Stone */
+            --text-secondary: #78716c;   /* Medium Stone */
+            
+            --accent-teal: #0d9488;      /* Teal-600 (Main Accent) */
+            --accent-teal-dark: #0f766e; /* Teal-700 */
+            --header-bg: #0f4b43;        /* Teal-900 (Header Background) */
+            --header-text: #ffffff;
+            --accent-complement: #f0fdfa; /* Teal-50 (Hover/Active background) */
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif; /* Changed to Inter */
+            background-color: var(--background-light);
+            color: var(--text-primary);
+        }
+        .logo-font { font-family: 'Playfair Display', serif; } /* Added Playfair Display */
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--secondary-light); }
+        ::-webkit-scrollbar-thumb { background-color: var(--accent-teal); border-radius: 4px; border: 2px solid var(--primary-light); }
+
+        /* Leaflet Map Customizations */
+        .leaflet-container { background: var(--background-light); }
+        .leaflet-popup-content-wrapper { background: var(--primary-light); color: var(--text-primary); border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); border: 1px solid var(--secondary-light); }
+        .leaflet-popup-content { width: 300px !important; line-height: 1.6; }
+        .leaflet-popup-tip { background: var(--primary-light); }
+        .leaflet-control-zoom-in, .leaflet-control-zoom-out { background-color: var(--primary-light) !important; color: var(--accent-teal) !important; border-color: var(--secondary-light) !important; }
+        .leaflet-control-zoom-in:hover, .leaflet-control-zoom-out:hover { background-color: var(--secondary-light) !important; }
+        .leaflet-routing-container { background: var(--primary-light); color: var(--text-primary); border: 1px solid var(--secondary-light); }
+        .popup-card { padding: 0; }
+        .popup-card img { width: 100%; height: 150px; object-fit: cover; border-top-left-radius: 8px; border-top-right-radius: 8px; }
+        .popup-card-content { padding: 16px; }
+        .popup-card-title { font-size: 1.25rem; font-weight: 700; color: var(--accent-teal); margin-bottom: 8px; }
+        .popup-card-district { font-size: 0.8rem; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 12px; }
+        .popup-card-description { font-size: 0.9rem; margin-bottom: 16px; }
+        .popup-card-button {
+            display: block; width: 100%; text-align: center; background-color: var(--accent-teal); color: var(--primary-light);
+            padding: 10px; border-radius: 5px; font-weight: 600; text-decoration: none; transition: background-color 0.3s; margin-top: 8px; cursor: pointer;
+        }
+       
+        /* Sidebar Styling */
+        .sidebar { background-color: var(--primary-light); transition: width 0.3s ease; border-right: 1px solid var(--secondary-light); }
+        /* The main header is now handled by the <header> tag above the main section */
+        .sidebar-header { display: none; }
+        .sidebar-header .text-accent-gold { color: var(--accent-teal); } 
+        
+        /* Search input and buttons */
+        #search-input { background-color: var(--secondary-light); border-color: #cbd5e1; color: var(--text-primary); }
+        #search-input:focus { border-color: var(--accent-teal); }
+        .text-text-secondary { color: var(--text-secondary); }
+        .border-secondary-dark { border-color: var(--secondary-light); }
+
+        .category-filter-btn { background-color: var(--secondary-light); color: var(--text-secondary); transition: all 0.2s; }
+        .category-filter-btn:hover { background-color: var(--accent-complement); color: var(--text-primary); }
+        .category-filter-btn.active { background-color: var(--accent-teal); color: var(--primary-light); font-weight: 600; }
+        
+        .filter-accordion-header { background-color: var(--primary-light); color: var(--text-primary); cursor: pointer; transition: background-color 0.2s; }
+        .filter-accordion-header:hover { background-color: var(--secondary-light); }
+        .filter-accordion-content { max-height: 0; overflow-y: auto; transition: max-height 0.3s ease-out; background-color: var(--primary-light); }
+        .filter-accordion-header.active + .filter-accordion-content { max-height: 500px; }
+        .filter-item { border-bottom: 1px solid var(--secondary-light); transition: background-color 0.2s; }
+        .filter-item:hover, .filter-item.active { background-color: var(--accent-complement); }
+        
+        /* GPS/Guide Buttons */
+        #begin-gps-btn { 
+            background-color: var(--accent-teal); 
+            color: white; 
+            font-size: 1.125rem;
+            padding: 12px 20px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.06);
+        }
+        #begin-gps-btn:hover { background-color: var(--accent-teal-dark); }
+
+        .sidebar-toggle {
+            background-color: var(--primary-light); color: var(--accent-teal);
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1); transition: left 0.3s ease; border: 1px solid var(--secondary-light);
+        }
+        
+        /* Guide Card (Modal) */
+        #guide-card { background-color: var(--primary-light); color: var(--text-primary); border: 1px solid var(--secondary-light); }
+        #monastery-name { color: var(--accent-teal); }
+        
+        #close-card-btn { color: var(--text-secondary); }
+        
+        /* Custom Marker Icon for light theme */
+        .leaflet-div-icon {
+            background-color: var(--accent-teal) !important;
+            border-color: var(--primary-light) !important;
+            color: var(--primary-light) !important;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .leaflet-div-icon i { color: var(--primary-light) !important; }
+        
+        /* Cluster Icons (adjust for light map) */
+        .marker-cluster-small { background-color: rgba(13, 148, 136, 0.4); } /* Teal-600 */
+        .marker-cluster-small div { background-color: rgba(13, 148, 136, 0.8); }
+        .marker-cluster-medium { background-color: rgba(15, 118, 110, 0.4); } /* Teal-700 */
+        .marker-cluster-medium div { background-color: rgba(15, 118, 110, 0.8); }
+        .marker-cluster-large { background-color: rgba(23, 126, 116, 0.4); } /* Teal-700+ */
+        .marker-cluster-large div { background-color: rgba(23, 126, 116, 0.8); }
+        .marker-cluster div { color: white; }
+
+        /* HEADER NAVIGATION STYLES */
+        .nav-link { position: relative; }
+        .nav-link::after { content:''; position:absolute; width:0; height:2px; bottom:-4px; left:50%; transform:translateX(-50%); background:#0d9488; transition:width 0.3s ease; }
+        .nav-link:hover::after, .nav-link.active::after { width:100%; }
+        .dropdown:hover .dropdown-menu { display: block; }
+        .dropdown-menu { 
+            display: none; 
+            animation: fadeIn 0.3s ease-in-out; 
+            /* FIX: Increase z-index so dropdown appears over map content (z-20) */
+            z-index: 60; 
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px);} to { opacity: 1; transform: translateY(0);} }
+    </style>
+</head>
+<body class="antialiased overflow-hidden text-stone-700">
+
+<header class="bg-teal-900 sticky top-0 z-50 shadow-lg">
+    <nav class="container mx-auto px-6">
+        <div class="flex items-center justify-between h-20">
+            <a href="/" class="flex items-center space-x-3">
+                <span class="text-2xl font-bold text-white logo-font">Monastery360</span>
+            </a>
+            <div class="hidden md:flex items-center h-full">
+                <a href="/" class="text-stone-200 hover:text-white font-medium nav-link px-6">Home</a>
+                <a href="/tour/" class="text-white font-medium nav-link px-6">Tours</a>
+                <a href="/cultural/" class="text-stone-200 hover:text-white font-medium nav-link px-6">Calender</a>
+                 <a href="/login/" class="bg-teal-600 text-white font-semibold px-5 py-2 rounded-lg hover:bg-teal-700 transition duration-300">Login</a>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main class="relative h-[calc(100vh-80px)] w-screen flex">
+    <aside id="sidebar" class="w-full md:w-96 h-full flex flex-col z-20 sidebar">
+        
+        <div class="sidebar-header p-4 text-center border-b border-secondary-dark">
+            <h1 class="text-2xl font-bold text-white">Explore <span class="text-accent-gold">Sikkim</span></h1>
+            <p class="text-sm text-text-secondary">Interactive Tourist Map</p>
+        </div>
+
+        <div class="p-4 border-b border-secondary-dark">
+            <div class="relative">
+                <input type="text" id="search-input" placeholder="Search for an attraction..." class="w-full border rounded-lg py-2 px-4 text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-teal">
+                <i class="fa-solid fa-search absolute right-4 top-1/2 -translate-y-1/2 text-text-secondary"></i>
+            </div>
+        </div>
+        
+        <div class="p-4 border-b border-secondary-dark">
+            <h3 class="text-sm font-semibold text-text-secondary mb-3">Filter by Type</h3>
+            <div id="category-filters" class="flex flex-wrap gap-2">
+            </div>
+        </div>
+
+        <div id="gps-controls" class="p-4 border-b border-secondary-dark">
+            <button id="begin-gps-btn" class="w-full font-semibold py-2 px-4 rounded-lg shadow transition duration-300 flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-location-crosshairs"></i>
+                <span>Find My Location Guide</span>
+            </button>
+        </div>
+
+        <div id="accordion-container" class="flex-1 overflow-y-auto">
+        </div>
+    </aside>
+
+    <button id="sidebar-toggle" class="absolute top-1/2 -translate-y-1/2 w-8 h-16 rounded-r-lg z-30 flex items-center justify-center left-0 sidebar-toggle">
+        <i id="toggle-icon" class="fa-solid fa-chevron-right"></i>
+    </button>
+
+    <section id="map" class="flex-1 h-full"></section>
+
+    <div id="guide-card-overlay" class="hidden absolute inset-0 bg-black/70 z-40 flex items-center justify-center p-4">
+        <div id="guide-card" class="max-w-sm w-full bg-primary-light rounded-xl shadow-2xl overflow-hidden relative flex flex-col border border-secondary-light" style="height: 95vh; max-height: 700px;">
+            <button id="close-card-btn" class="absolute top-2 right-3 text-text-secondary hover:text-white text-2xl z-40">×</button>
+            <iframe id="monastery-view-frame" class="w-full h-56 border-0" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            <div class="p-6 flex-1 flex flex-col">
+                <h3 id="monastery-name" class="text-3xl font-bold logo-font">Location Name</h3>
+                <div id="guide-message-area" class="my-4 p-3 rounded-lg h-32 overflow-y-auto text-sm" style="background-color: var(--secondary-light);"><p id="status-text">Your AI guide is ready. Ask a question below!</p></div>
+                <div class="mt-auto flex space-x-2">
+                    <input type="text" id="guide-chat-input" placeholder="Ask about this place..." class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-teal" style="background-color: var(--secondary-light);">
+                    <button id="guide-chat-send" class="px-4 py-2 rounded-lg disabled:opacity-50 text-white" style="background-color: var(--accent-teal); hover-bg: var(--accent-teal-dark);"><i class="fa-solid fa-microphone"></i></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    // Placeholder for mobile menu toggle to prevent errors
+    document.getElementById('mobile-menu-button')?.addEventListener('click', () => {
+        // Simple mobile menu toggle logic
+        const mobileMenu = document.getElementById('mobile-menu');
+        if (mobileMenu) {
+            mobileMenu.classList.toggle('hidden');
+        }
+    });
+</script>
+
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
+
+<script id="django-static-data" type="application/json">
+    {
+        "geojsonUrl": "{% static 'sikkim_districts_full.geojson' %}",
+        "imagesPrefix": "{% static 'images/' %}"
+    }
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const staticData = JSON.parse(document.getElementById('django-static-data').textContent);
+        const GEOJSON_URL = staticData.geojsonUrl;
+        const IMAGES_URL_PREFIX = staticData.imagesPrefix;
+
+    
+
+        const locations = [
+            // --- North Sikkim Monasteries (55 Entries) ---
+            { id: 'phodong', type: 'Monastery', name: "Phodong Monastery", lat: 27.429396, lng: 88.618610, district: "North Sikkim", image:'default.jpg', description: "An important monastery of the Kagyupa sect.", googleMapEmbedUrl: '' },
+            { id: 'phensang', type: 'Monastery', name: "Phensang Monastery", lat: 27.4043, lng: 88.5913, district: "North Sikkim", image: 'default.jpg', description: "Known for its annual festival of sacred dances.", googleMapEmbedUrl: '' },
+            { id: 'labrang', type: 'Monastery', name: "Labrang Monastery", lat: 27.4530, lng: 88.6102, district: "North Sikkim", image: 'default.jpg', description: "A unique monastery of the Nyingmapa sect.", googleMapEmbedUrl: '' },
+            { id: 'chungthang_monastery', type: 'Monastery', name: "Chungthang Monastery", lat: 27.6075, lng: 88.6433, district: "North Sikkim", image: 'default.jpg', description: "A sacred site with a rock believed to bear Guru Padmasambhava's footprint.", googleMapEmbedUrl: '' },
+            { id: 'lachen_monastery', type: 'Monastery', name: "Lachen Monastery", lat: 27.7161, lng: 88.5574, district: "North Sikkim", image: 'default.jpg', description: "Offers stunning views of the surrounding Himalayan peaks.", googleMapEmbedUrl: '' },
+            { id: 'lachung', type: 'Monastery', name: "Lachung Monastery", lat: 27.6896, lng: 88.7431, district: "North Sikkim", image: 'default.jpg', description: "A vibrant monastery in the picturesque Lachung Valley.", googleMapEmbedUrl: '' },
+            { id: 'thangu', type: 'Monastery', name: "Thangu Monastery", lat: 27.8760, lng: 88.5300, district: "North Sikkim", image: 'default.jpg', description: "Located in the high-altitude Thangu Valley.", googleMapEmbedUrl: '' },
+            { id: 'singik_monastery', type: 'Monastery', name: "Singik Monastery", lat: 27.5167, lng: 88.5750, district: "North Sikkim", image: 'default.jpg', description: "Offers panoramic views of Mt. Kanchenjunga.", googleMapEmbedUrl: '' },
+            { id: 'mangan_monastery', type: 'Monastery', name: "Mangan Monastery", lat: 27.5000, lng: 88.5333, district: "North Sikkim", image: 'default.jpg', description: "The main monastery in the district headquarters.", googleMapEmbedUrl: '' },
+            { id: 'tingchim', type: 'Monastery', name: "Tingchim Monastery", lat: 27.4833, lng: 88.5500, district: "North Sikkim", image: 'default.jpg', description: "A quiet and serene monastery.", googleMapEmbedUrl: '' },
+            { id: 'lingthem', type: 'Monastery', name: "Lingthem Monastery", lat: 27.5500, lng: 88.6500, district: "North Sikkim", image: 'default.jpg', description: "Overlooks the confluence of two rivers.", googleMapEmbedUrl: '' },
+            { id: 'hee-gyathang', type: 'Monastery', name: "Hee-Gyathang Monastery", lat: 27.5333, lng: 88.6000, district: "North Sikkim", image: 'default.jpg', description: "An important place of worship for the local community.", googleMapEmbedUrl: '' },
+            { id: 'kabi_monastery', type: 'Monastery', name: "Kabi Monastery", lat: 27.4500, lng: 88.6167, district: "North Sikkim", image: 'default.jpg', description: "Site of the historic 'blood brotherhood' treaty.", googleMapEmbedUrl: '' },
+            { id: 'talphung', type: 'Monastery', name: "Talphung Monastery", lat: 27.5667, lng: 88.5833, district: "North Sikkim", image: 'default.jpg', description: "A lesser-known gem with rich history.", googleMapEmbedUrl: '' },
+            { id: 'ringyim', type: 'Monastery', name: "Ringyim Monastery", lat: 27.5186, lng: 88.5432, district: "North Sikkim", image: 'default.jpg', description: "Features beautiful murals and thangkas.", googleMapEmbedUrl: '' },
+            { id: 'naga', type: 'Monastery', name: "Naga Monastery", lat: 27.4667, lng: 88.5167, district: "North Sikkim", image: 'default.jpg', description: "Located near the village of Naga.", googleMapEmbedUrl: '' },
+            { id: 'toong', type: 'Monastery', name: "Toong Monastery", lat: 27.5833, lng: 88.6667, district: "North Sikkim", image: 'default.jpg', description: "A small monastery serving the Toong village.", googleMapEmbedUrl: '' },
+            { id: 'shipgyer', type: 'Monastery', name: "Shipgyer Monastery", lat: 27.6333, lng: 88.7167, district: "North Sikkim", image: 'default.jpg', description: "Located on the way to Lachung.", googleMapEmbedUrl: '' },
+            { id: 'tsum', type: 'Monastery', name: "Tsum Monastery", lat: 27.8000, lng: 88.7500, district: "North Sikkim", image: 'default.jpg', description: "A remote monastery in the high mountains.", googleMapEmbedUrl: '' },
+            { id: 'namgyal-tsemo', type: 'Monastery', name: "Namgyal Tsemo Monastery", lat: 27.7500, lng: 88.6000, district: "North Sikkim", image: 'default.jpg', description: "Perched high on a ridge.", googleMapEmbedUrl: '' },
+            { id: 'dzongu_monastery', type: 'Monastery', name: "Dzongu Monastery", lat: 27.5550, lng: 88.5050, district: "North Sikkim", image: 'default.jpg', description: "Located in the Lepcha reserve of Dzongu.", googleMapEmbedUrl: '' },
+            { id: 'sakya-lachen', type: 'Monastery', name: "Sakya Monastery of Lachen", lat: 27.7200, lng: 88.5600, district: "North Sikkim", image: 'default.jpg', description: "Follows the Sakya tradition of Tibetan Buddhism.", googleMapEmbedUrl: '' },
+            { id: 'chaten', type: 'Monastery', name: "Chaten Monastery", lat: 27.7833, lng: 88.5000, district: "North Sikkim", image: 'default.jpg', description: "A small gompa near the Indo-Tibetan border.", googleMapEmbedUrl: '' },
+            { id: 'kalep', type: 'Monastery', name: "Kalep Monastery", lat: 27.4333, lng: 88.5000, district: "North Sikkim", image: 'default.jpg', description: "A community monastery in a serene setting.", googleMapEmbedUrl: '' },
+            { id: 'lingko', type: 'Monastery', name: "Lingko Monastery", lat: 27.65, lng: 88.6, district: "North Sikkim", image: 'default.jpg', description: "A remote high-altitude monastery.", googleMapEmbedUrl: '' },
+            { id: 'zadong', type: 'Monastery', name: "Zadong Monastery", lat: 27.9, lng: 88.5, district: "North Sikkim", image: 'default.jpg', description: "Offers spectacular mountain vistas.", googleMapEmbedUrl: '' },
+            { id: 'pentok', type: 'Monastery', name: "Pentok Monastery", lat: 27.4, lng: 88.55, district: "North Sikkim", image: 'default.jpg', description: "A place of quiet contemplation.", googleMapEmbedUrl: '' },
+            { id: 'muguthang', type: 'Monastery', name: "Muguthang Gompa", lat: 27.95, lng: 88.6, district: "North Sikkim", image: 'default.jpg', description: "One of the highest monasteries in the region.", googleMapEmbedUrl: '' },
+            { id: 'giwong', type: 'Monastery', name: "Giwong Gompa", lat: 27.85, lng: 88.7, district: "North Sikkim", image: 'default.jpg', description: "A historic and culturally significant site.", googleMapEmbedUrl: '' },
+            { id: 'tetso', type: 'Monastery', name: "Tetso Monastery", lat: 27.6, lng: 88.58, district: "North Sikkim", image: 'default.jpg', description: "Known for its collection of ancient texts.", googleMapEmbedUrl: '' },
+            { id: 'sakyong_monastery', type: 'Monastery', name: "Sakyong Monastery", lat: 27.58, lng: 88.5, district: "North Sikkim", image: 'default.jpg', description: "An important center for Buddhist philosophy.", googleMapEmbedUrl: '' },
+            { id: 'pothing', type: 'Monastery', name: "Pothing Monastery", lat: 27.48, lng: 88.62, district: "North Sikkim", image: 'default.jpg', description: "A peaceful retreat for monks and visitors.", googleMapEmbedUrl: '' },
+            { id: 'rang-rang', type: 'Monastery', name: "Rang-Rang Monastery", lat: 27.46, lng: 88.58, district: "North Sikkim", image: 'default.jpg', description: "Features unique architectural elements.", googleMapEmbedUrl: '' },
+            { id: 'namok', type: 'Monastery', name: "Namok Monastery", lat: 27.44, lng: 88.56, district: "North Sikkim", image: 'default.jpg', description: "A center for local religious festivals.", googleMapEmbedUrl: '' },
+            { id: 'singtam_gompa', type: 'Monastery', name: "Singtam Gompa", lat: 27.49, lng: 88.51, district: "North Sikkim", image: 'default.jpg', description: "A monastery serving the local Singtam area.", googleMapEmbedUrl: '' },
+            { id: 'barfok', type: 'Monastery', name: "Barfok Monastery", lat: 27.62, lng: 88.68, district: "North Sikkim", image: 'default.jpg', description: "Known for its serene and isolated location.", googleMapEmbedUrl: '' },
+            { id: 'zema', type: 'Monastery', name: "Zema Monastery", lat: 27.82, lng: 88.65, district: "North Sikkim", image: 'default.jpg', description: "A gateway to the high-altitude Zema valley.", googleMapEmbedUrl: '' },
+            { id: 'talam', type: 'Monastery', name: "Talam Monastery", lat: 27.7, lng: 88.7, district: "North Sikkim", image: 'default.jpg', description: "A small but spiritually significant gompa.", googleMapEmbedUrl: '' },
+            { id: 'singring', type: 'Monastery', name: "Singring Monastery", lat: 27.67, lng: 88.55, district: "North Sikkim", image: 'default.jpg', description: "Holds a collection of rare Buddhist artifacts.", googleMapEmbedUrl: '' },
+            { id: 'bey', type: 'Monastery', name: "Bey Monastery", lat: 27.77, lng: 88.77, district: "North Sikkim", image: 'default.jpg', description: "Located in a hidden valley or 'beyul'.", googleMapEmbedUrl: '' },
+            { id: 'yakthang', type: 'Monastery', name: "Yakthang Monastery", lat: 27.73, lng: 88.63, district: "North Sikkim", image: 'default.jpg', description: "Surrounded by pastures for yaks.", googleMapEmbedUrl: '' },
+            { id: 'talung_monastery', type: 'Monastery', name: "Talung Monastery", lat: 27.64, lng: 88.45, district: "North Sikkim", image: 'default.jpg', description: "Guards the entrance to the Talung valley.", googleMapEmbedUrl: '' },
+            { id: 'pakshep', type: 'Monastery', name: "Pakshep Monastery", lat: 27.59, lng: 88.48, district: "North Sikkim", image: 'default.jpg', description: "A repository of local history and culture.", googleMapEmbedUrl: '' },
+            { id: 'khecheopalri-north', type: 'Monastery', name: "North Khecheopalri Gompa", lat: 27.66, lng: 88.33, district: "North Sikkim", image: 'default.jpg', description: "A monastery near a sacred, wish-fulfilling lake.", googleMapEmbedUrl: '' },
+            { id: 'kay-monastery', type: 'Monastery', name: "Kay Monastery", lat: 27.5, lng: 88.68, district: "North Sikkim", image: 'default.jpg', description: "An important Nyingma monastery.", googleMapEmbedUrl: '' },
+            { id: 'nam-nagar', type: 'Monastery', name: "Nam-Nagar Monastery", lat: 27.47, lng: 88.65, district: "North Sikkim", image: 'default.jpg', description: "A modern monastery with traditional architecture.", googleMapEmbedUrl: '' },
+            { id: 'phamtam', type: 'Monastery', name: "Phamtam Monastery", lat: 27.54, lng: 88.62, district: "North Sikkim", image: 'default.jpg', description: "Known for its butter lamp offerings.", googleMapEmbedUrl: '' },
+            { id: 'tsungthang', type: 'Monastery', name: "Tsungthang Monastery", lat: 27.61, lng: 88.65, district: "North Sikkim", image: 'default.jpg', description: "An alternate name for the Chungthang holy site.", googleMapEmbedUrl: '' },
+            { id: 'gurudongmar_gompa', type: 'Monastery', name: "Gurudongmar Gompa", lat: 27.98, lng: 88.7, district: "North Sikkim", image: 'default.jpg', description: "A small temple near the sacred Gurudongmar Lake.", googleMapEmbedUrl: '' },
+            { id: 'chola-mu', type: 'Monastery', name: "Chola Mu Monastery", lat: 28.05, lng: 88.75, district: "North Sikkim", image: 'default.jpg', description: "A remote site near the Tibetan plateau.", googleMapEmbedUrl: '' },
+            { id: 'chulung', type: 'Monastery', name: "Chulung Monastery", lat: 27.88, lng: 88.6, district: "North Sikkim", image: 'default.jpg', description: "A monastery frequented by yak herders.", googleMapEmbedUrl: '' },
+            { id: 'tholung_monastery', type: 'Monastery', name: "Tholung Monastery", lat: 27.6, lng: 88.4, district: "North Sikkim", image: 'default.jpg', description: "A remote monastery housing precious artifacts.", googleMapEmbedUrl: '' },
+            { id: 'bayul-demazong', type: 'Monastery', name: "Bayul Demazong", lat: 27.7, lng: 88.4, district: "North Sikkim", image: 'default.jpg', description: "A sacred hidden land and pilgrimage site.", googleMapEmbedUrl: '' },
+            { id: 'kyeshong', type: 'Monastery', name: "Kyeshong Monastery", lat: 27.8, lng: 88.45, district: "North Sikkim", image: 'default.jpg', description: "Located in a valley of medicinal herbs.", googleMapEmbedUrl: '' },
+            { id: 'lhakhang', type: 'Monastery', name: "Lhakhang Monastery", lat: 27.9, lng: 88.3, district: "North Sikkim", image: 'default.jpg', description: "A high-altitude temple of worship.", googleMapEmbedUrl: '' },
+            
+            // --- West Sikkim Monasteries (30 Entries) ---
+            { id: 'pemayangtse', type: 'Monastery', name: "Pemayangtse Monastery", lat: 27.301550, lng: 88.256884, district: "West Sikkim", image: 'default.jpg', description: "Famed for its intricate wooden sculptures.", googleMapEmbedUrl: '' },
+            { id: 'tashiding', type: 'Monastery', name: "Tashiding Monastery", lat: 27.271318, lng: 88.286164, district: "West Sikkim", image: 'default.jpg', description: "Considered the spiritual center of Sikkim.", googleMapEmbedUrl: '' },
+            { id: 'dubdi', type: 'Monastery', name: "Dubdi Monastery", lat: 27.375681, lng: 88.225586, district: "West Sikkim", image: 'default.jpg', description: "Often called the 'Hermit's Cell', the oldest in Sikkim.", googleMapEmbedUrl: '' },
+            { id: 'sanga-choeling', type: 'Monastery', name: "Sanga Choeling Monastery", lat: 27.2950, lng: 88.2450, district: "West Sikkim", image: 'default.jpg', description: "The second oldest monastery in Sikkim.", googleMapEmbedUrl: '' },
+            { id: 'khecheopalri_monastery', type: 'Monastery', name: "Khecheopalri Monastery", lat: 27.3710, lng: 88.2000, district: "West Sikkim", image: 'default.jpg', description: "Located by the sacred Khecheopalri Lake.", googleMapEmbedUrl: '' },
+            { id: 'yuksom_monastery', type: 'Monastery', name: "Yuksom Monastery", lat: 27.3667, lng: 88.2167, district: "West Sikkim", image: 'default.jpg', description: "Includes the coronation throne of the first Chogyal.", googleMapEmbedUrl: '' },
+            { id: 'gyalshing', type: 'Monastery', name: "Gyalshing Gompa", lat: 27.2833, lng: 88.2667, district: "West Sikkim", image: 'default.jpg', description: "The main monastery in the town of Gyalshing.", googleMapEmbedUrl: '' },
+            { id: 'rinchenpong', type: 'Monastery', name: "Rinchenpong Monastery", lat: 27.2333, lng: 88.2833, district: "West Sikkim", image: 'default.jpg', description: "Known for its statue of Ati Buddha.", googleMapEmbedUrl: '' },
+            { id: 'pelling_monastery', type: 'Monastery', name: "Pelling Monastery", lat: 27.3167, lng: 88.2333, district: "West Sikkim", image: 'default.jpg', description: "Offers stunning views of Kanchenjunga.", googleMapEmbedUrl: '' },
+            { id: 'soreng', type: 'Monastery', name: "Soreng Monastery", lat: 27.1667, lng: 88.2000, district: "West Sikkim", image: 'default.jpg', description: "A center of Buddhist learning in West Sikkim.", googleMapEmbedUrl: '' },
+            { id: 'chakung', type: 'Monastery', name: "Chakung Monastery", lat: 27.1500, lng: 88.2333, district: "West Sikkim", image: 'default.jpg', description: "A small monastery serving the Chakung area.", googleMapEmbedUrl: '' },
+            { id: 'hiley', type: 'Monastery', name: "Hiley Monastery", lat: 27.2667, lng: 88.1167, district: "West Sikkim", image: 'default.jpg', description: "A starting point for treks in the region.", googleMapEmbedUrl: '' },
+            { id: 'uting', type: 'Monastery', name: "Uting Monastery", lat: 27.4000, lng: 88.2500, district: "West Sikkim", image: 'default.jpg', description: "A remote and peaceful gompa.", googleMapEmbedUrl: '' },
+            { id: 'yangtey', type: 'Monastery', name: "Yangtey Monastery", lat: 27.3000, lng: 88.2833, district: "West Sikkim", image: 'default.jpg', description: "Overlooks the town of Pelling.", googleMapEmbedUrl: '' },
+            { id: 'lingchom', type: 'Monastery', name: "Lingchom Monastery", lat: 27.3500, lng: 88.3000, district: "West Sikkim", image: 'default.jpg', description: "A historic Nyingma monastery.", googleMapEmbedUrl: '' },
+            { id: 'dentam', type: 'Monastery', name: "Dentam Monastery", lat: 27.2500, lng: 88.1833, district: "West Sikkim", image: 'default.jpg', description: "Located in the beautiful Dentam valley.", googleMapEmbedUrl: '' },
+            { id: 'hee-bermiok', type: 'Monastery', name: "Hee-Bermiok Monastery", lat: 27.2167, lng: 88.2000, district: "West Sikkim", image: 'default.jpg', description: "A community monastery surrounded by nature.", googleMapEmbedUrl: '' },
+            { id: 'kaluk', type: 'Monastery', name: "Kaluk Monastery", lat: 27.2333, lng: 88.2500, district: "West Sikkim", image: 'default.jpg', description: "Known for its serene atmosphere.", googleMapEmbedUrl: '' },
+            { id: 'patal', type: 'Monastery', name: "Patal Monastery", lat: 27.32, lng: 88.15, district: "West Sikkim", image: 'default.jpg', description: "An ancient monastery of West Sikkim.", googleMapEmbedUrl: '' },
+            { id: 'tingbung', type: 'Monastery', name: "Tingbung Monastery", lat: 27.36, lng: 88.18, district: "West Sikkim", image: 'default.jpg', description: "A community monastery in Tingbung village.", googleMapEmbedUrl: '' },
+            { id: 'sakyong-pentong', type: 'Monastery', name: "Sakyong-Pentong Monastery", lat: 27.4, lng: 88.1, district: "West Sikkim", image: 'default.jpg', description: "Holds significant religious importance.", googleMapEmbedUrl: '' },
+            { id: 'nampatam', type: 'Monastery', name: "Nampatam Monastery", lat: 27.33, lng: 88.12, district: "West Sikkim", image: 'default.jpg', description: "A small gompa with beautiful surroundings.", googleMapEmbedUrl: '' },
+            { id: 'zimchung', type: 'Monastery', name: "Zimchung Monastery", lat: 27.42, lng: 88.14, district: "West Sikkim", image: 'default.jpg', description: "A remote monastery in the western hills.", googleMapEmbedUrl: '' },
+            { id: 'tolung-west', type: 'Monastery', name: "Tolung Monastery (West)", lat: 27.45, lng: 88.16, district: "West Sikkim", image: 'default.jpg', description: "A historic site preserving ancient relics.", googleMapEmbedUrl: '' },
+            { id: 'rin-chen-po', type: 'Monastery', name: "Rin-chen-po Monastery", lat: 27.2, lng: 88.19, district: "West Sikkim", image: 'default.jpg', description: "An important place for pilgrimage.", googleMapEmbedUrl: '' },
+            { id: 'pakshek', type: 'Monastery', name: "Pakshek Monastery", lat: 27.22, lng: 88.22, district: "West Sikkim", image: 'default.jpg', description: "A serene monastery away from tourist crowds.", googleMapEmbedUrl: '' },
+            { id: 'thanggu-west', type: 'Monastery', name: "Thanggu Monastery (West)", lat: 27.48, lng: 88.2, district: "West Sikkim", image: 'default.jpg', description: "High-altitude place of worship.", googleMapEmbedUrl: '' },
+            { id: 'tashijong_monastery', type: 'Monastery', name: "Tashijong Monastery", lat: 27.18, lng: 88.28, district: "West Sikkim", image: 'default.jpg', description: "A vibrant center for Tibetan arts.", googleMapEmbedUrl: '' },
+            { id: 'singhik-gompa-west', type: 'Monastery', name: "Singhik Viewpoint Gompa (West)", lat: 27.34, lng: 88.34, district: "West Sikkim", image: 'default.jpg', description: "Offers views of the Kanchenjunga range.", googleMapEmbedUrl: '' },
+            { id: 'changthang-west', type: 'Monastery', name: "Changthang Monastery (West)", lat: 27.5, lng: 88.25, district: "West Sikkim", image: 'default.jpg', description: "A monastery with a unique history.", googleMapEmbedUrl: '' },
+            
+            // --- South Sikkim Monasteries (50 Entries) ---
+            { id: 'ralang', type: 'Monastery', name: "Ralang Monastery", lat: 27.320476, lng: 88.384594, district: "South Sikkim", image: 'default.jpg', description: "A treasure of Buddhist art and paintings.", googleMapEmbedUrl: '' },
+            { id: 'buddha-park-monastery', type: 'Monastery', name: "Buddha Park Monastery", lat: 27.3105, lng: 88.3615, district: "South Sikkim", image: 'default.jpg', description: "Part of the complex featuring a 130-foot high statue of the Buddha.", googleMapEmbedUrl: '' },
+            { id: 'samdruptse_monastery', type: 'Monastery', name: "Samdruptse Monastery", lat: 27.2286, lng: 88.2675, district: "South Sikkim", image: 'default.jpg', description: "Home to a giant statue of Guru Padmasambhava.", googleMapEmbedUrl: '' },
+            { id: 'ngadak', type: 'Monastery', name: "Ngadak Monastery", lat: 27.1758, lng: 88.2758, district: "South Sikkim", image: 'default.jpg', description: "One of the older monasteries, now in a peaceful, ruined state.", googleMapEmbedUrl: '' },
+            { id: 'serdup-choling', type: 'Monastery', name: "Serdup Choling Monastery", lat: 27.1700, lng: 88.3500, district: "South Sikkim", image: 'default.jpg', description: "Located in the heart of Namchi.", googleMapEmbedUrl: '' },
+            { id: 'tendong_gumpa', type: 'Monastery', name: "Tendong Gumpa", lat: 27.2500, lng: 88.3500, district: "South Sikkim", image: 'default.jpg', description: "A small monastery situated on Tendong Hill.", googleMapEmbedUrl: '' },
+            { id: 'sanga-choeling-namchi', type: 'Monastery', name: "Sanga Choeling Monastery, Namchi", lat: 27.1650, lng: 88.3450, district: "South Sikkim", image: 'default.jpg', description: "Offers panoramic views of the surrounding hills.", googleMapEmbedUrl: '' },
+            { id: 'sangling', type: 'Monastery', name: "Sangling Monastery", lat: 27.2833, lng: 88.4000, district: "South Sikkim", image: 'default.jpg', description: "A beautiful monastery near Ravangla.", googleMapEmbedUrl: '' },
+            { id: 'khyosphalri', type: 'Monastery', name: "Khyosphalri Monastery", lat: 27.2167, lng: 88.3167, district: "South Sikkim", image: 'default.jpg', description: "Located near a sacred lake.", googleMapEmbedUrl: '' },
+            { id: 'bermiok', type: 'Monastery', name: "Bermiok Monastery", lat: 27.2000, lng: 88.3000, district: "South Sikkim", image: 'default.jpg', description: "A community monastery in a picturesque village.", googleMapEmbedUrl: '' },
+            { id: 'mangbrue', type: 'Monastery', name: "Mangbrue Gompa", lat: 27.2333, lng: 88.4167, district: "South Sikkim", image: 'default.jpg', description: "Known for its unique architectural style.", googleMapEmbedUrl: '' },
+            { id: 'temi_monastery', type: 'Monastery', name: "Temi Monastery", lat: 27.2345, lng: 88.4221, district: "South Sikkim", image: 'default.jpg', description: "Overlooks the famous Temi Tea Garden.", googleMapEmbedUrl: '' },
+            { id: 'sikkim-university-gompa', type: 'Monastery', name: "Sikkim University Gompa", lat: 27.2912, lng: 88.3334, district: "South Sikkim", image: 'default.jpg', description: "A modern gompa within the university campus.", googleMapEmbedUrl: '' },
+            { id: 'namthang', type: 'Monastery', name: "Namthang Monastery", lat: 27.1500, lng: 88.4000, district: "South Sikkim", image: 'default.jpg', description: "An important religious site for the local population.", googleMapEmbedUrl: '' },
+            { id: 'kitam', type: 'Monastery', name: "Kitam Monastery", lat: 27.1167, lng: 88.3333, district: "South Sikkim", image: 'default.jpg', description: "Located near the Kitam Bird Sanctuary.", googleMapEmbedUrl: '' },
+            { id: 'perbing', type: 'Monastery', name: "Perbing Monastery", lat: 27.2667, lng: 88.4333, district: "South Sikkim", image: 'default.jpg', description: "A small, peaceful monastery.", googleMapEmbedUrl: '' },
+            { id: 'phur-tsa-chu', type: 'Monastery', name: "Phur Tsa Chu Gompa", lat: 27.1333, lng: 88.2500, district: "South Sikkim", image: 'default.jpg', description: "Located near the hot springs.", googleMapEmbedUrl: '' },
+            { id: 'jaubari', type: 'Monastery', name: "Jaubari Monastery", lat: 27.1833, lng: 88.3833, district: "South Sikkim", image: 'default.jpg', description: "A serene monastery with views of Namchi.", googleMapEmbedUrl: '' },
+            { id: 'palchen-choeling', type: 'Monastery', name: "Palchen Choeling Monastery", lat: 27.1730, lng: 88.3550, district: "South Sikkim", image: 'default.jpg', description: "A large monastic complex in Namchi.", googleMapEmbedUrl: '' },
+            { id: 'solophok', type: 'Monastery', name: "Solophok Chardham", lat: 27.1338, lng: 88.3307, district: "South Sikkim", image: 'default.jpg', description: "A pilgrimage center with replicas of famous temples.", googleMapEmbedUrl: '' },
+            { id: 'sadam', type: 'Monastery', name: "Sadam Monastery", lat: 27.1521, lng: 88.3654, district: "South Sikkim", image: 'default.jpg', description: "A village monastery in South Sikkim.", googleMapEmbedUrl: '' },
+            { id: 'assangthang', type: 'Monastery', name: "Assangthang Monastery", lat: 27.1950, lng: 88.3450, district: "South Sikkim", image: 'default.jpg', description: "A small gompa with a peaceful atmosphere.", googleMapEmbedUrl: '' },
+            { id: 'siktam', type: 'Monastery', name: "Siktam Monastery", lat: 27.2150, lng: 88.3550, district: "South Sikkim", image: 'default.jpg', description: "Serves the local community of Siktam village.", googleMapEmbedUrl: '' },
+            { id: 'lingmoo', type: 'Monastery', name: "Lingmoo Monastery", lat: 27.2750, lng: 88.3250, district: "South Sikkim", image: 'default.jpg', description: "A historic monastery in rural South Sikkim.", googleMapEmbedUrl: '' },
+            { id: 'yangyang', type: 'Monastery', name: "Yangyang Monastery", lat: 27.2450, lng: 88.4550, district: "South Sikkim", image: 'default.jpg', description: "Known for its beautiful location.", googleMapEmbedUrl: '' },
+            { id: 'wok', type: 'Monastery', name: "Wok Monastery", lat: 27.2050, lng: 88.3650, district: "South Sikkim", image: 'default.jpg', description: "Overlooks the Wok valley.", googleMapEmbedUrl: '' },
+            { id: 'tarethang', type: 'Monastery', name: "Tarethang Monastery", lat: 27.1450, lng: 88.4250, district: "South Sikkim", image: 'default.jpg', description: "A small but important local monastery.", googleMapEmbedUrl: '' },
+            { id: 'chalamthang', type: 'Monastery', name: "Chalamthang Monastery", lat: 27.2250, lng: 88.4850, district: "South Sikkim", image: 'default.jpg', description: "A center for Buddhist teachings.", googleMapEmbedUrl: '' },
+            { id: 'tarku', type: 'Monastery', name: "Tarku Monastery", lat: 27.2550, lng: 88.4950, district: "South Sikkim", image: 'default.jpg', description: "Located in the town of Tarku.", googleMapEmbedUrl: '' },
+            { id: 'pabong', type: 'Monastery', name: "Pabong Monastery", lat: 27.2950, lng: 88.3950, district: "South Sikkim", image: 'default.jpg', description: "A historic site with ancient roots.", googleMapEmbedUrl: '' },
+            { id: 'vok-monastery', type: 'Monastery', name: "Vok Monastery", lat: 27.19, lng: 88.37, district: "South Sikkim", image: 'default.jpg', description: "A secluded monastery known for meditation.", googleMapEmbedUrl: '' },
+            { id: 'ratey-pani', type: 'Monastery', name: "Ratey Pani Monastery", lat: 27.16, lng: 88.41, district: "South Sikkim", image: 'default.jpg', description: "An important local gompa.", googleMapEmbedUrl: '' },
+            { id: 'kewzing-south', type: 'Monastery', name: "Kewzing Monastery (South)", lat: 27.28, lng: 88.3, district: "South Sikkim", image: 'default.jpg', description: "A well-preserved traditional monastery.", googleMapEmbedUrl: '' },
+            { id: 'doling-gompa', type: 'Monastery', name: "Doling Gompa", lat: 27.24, lng: 88.29, district: "South Sikkim", image: 'default.jpg', description: "Features a statue of the future Buddha.", googleMapEmbedUrl: '' },
+            { id: 'borong', type: 'Monastery', name: "Borong Monastery", lat: 27.26, lng: 88.41, district: "South Sikkim", image: 'default.jpg', description: "Famous for the annual Borong festival.", googleMapEmbedUrl: '' },
+            { id: 'ben-monastery', type: 'Monastery', name: "Ben Monastery", lat: 27.22, lng: 88.38, district: "South Sikkim", image: 'default.jpg', description: "A small, peaceful monastery near Ravangla.", googleMapEmbedUrl: '' },
+            { id: 'sikip', type: 'Monastery', name: "Sikip Monastery", lat: 27.1, lng: 88.3, district: "South Sikkim", image: 'default.jpg', description: "Located near the Rangeet river.", googleMapEmbedUrl: '' },
+            { id: 'melli', type: 'Monastery', name: "Melli Monastery", lat: 27.09, lng: 88.45, district: "South Sikkim", image: 'default.jpg', description: "A border town monastery.", googleMapEmbedUrl: '' },
+            { id: 'jorethang', type: 'Monastery', name: "Jorethang Monastery", lat: 27.14, lng: 88.28, district: "South Sikkim", image: 'default.jpg', description: "An important monastery in Jorethang town.", googleMapEmbedUrl: '' },
+            { id: 'rabong', type: 'Monastery', name: "Rabong Gompa", lat: 27.3, lng: 88.37, district: "South Sikkim", image: 'default.jpg', description: "A center for Buddhist studies.", googleMapEmbedUrl: '' },
+            { id: 'maenam_monastery', type: 'Monastery', name: "Maenam Monastery", lat: 27.29, lng: 88.36, district: "South Sikkim", image: 'default.jpg', description: "Located on the Maenam Hill.", googleMapEmbedUrl: '' },
+            { id: 'chumbung', type: 'Monastery', name: "Chumbung Monastery", lat: 27.2, lng: 88.25, district: "South Sikkim", image: 'default.jpg', description: "A historic site in South Sikkim.", googleMapEmbedUrl: '' },
+            { id: 'gerethang', type: 'Monastery', name: "Gerethang Monastery", lat: 27.15, lng: 88.3, district: "South Sikkim", image: 'default.jpg', description: "Offers views of the surrounding area.", googleMapEmbedUrl: '' },
+            { id: 'ralong-palchen', type: 'Monastery', name: "Ralong Palchen Choling", lat: 27.31, lng: 88.38, district: "South Sikkim", image: 'default.jpg', description: "The newer Ralang monastery.", googleMapEmbedUrl: '' },
+            { id: 'tingmoo', type: 'Monastery', name: "Tingmoo Monastery", lat: 27.27, lng: 88.31, district: "South Sikkim", image: 'default.jpg', description: "A village monastery with a strong community.", googleMapEmbedUrl: '' },
+            { id: 'sangmo', type: 'Monastery', name: "Sangmo Monastery", lat: 27.19, lng: 88.44, district: "South Sikkim", image: 'default.jpg', description: "A quiet place for meditation.", googleMapEmbedUrl: '' },
+            { id: 'tokal', type: 'Monastery', name: "Tokal Monastery", lat: 27.21, lng: 88.46, district: "South Sikkim", image: 'default.jpg', description: "A traditional Nyingma gompa.", googleMapEmbedUrl: '' },
+            { id: 'mamley', type: 'Monastery', name: "Mamley Gompa", lat: 27.18, lng: 88.36, district: "South Sikkim", image: 'default.jpg', description: "A small, historic monastery.", googleMapEmbedUrl: '' },
+            { id: 'panchase', type: 'Monastery', name: "Panchase Monastery", lat: 27.26, lng: 88.28, district: "South Sikkim", image: 'default.jpg', description: "Offers panoramic Himalayan views.", googleMapEmbedUrl: '' },
+            { id: 'sosing', type: 'Monastery', name: "Sosing Monastery", lat: 27.23, lng: 88.33, district: "South Sikkim", image: 'default.jpg', description: "A serene monastery in South Sikkim.", googleMapEmbedUrl: '' },
+
+            // --- East Sikkim Monasteries (65 Entries) ---
+            { id: 'rumtek', type: 'Monastery', name: "Rumtek Monastery", lat: 27.291351, lng: 88.566373, district: "East Sikkim", image: 'default.jpg', description: "A sprawling complex, pivotal for Tibetan Buddhism.", googleMapEmbedUrl: '' },
+            { id: 'enchey', type: 'Monastery', name: "Enchey Monastery", lat: 27.340915, lng: 88.618635, district: "East Sikkim", image: 'default.jpg', description: "Meaning 'the solitary temple', offering spectacular views.", googleMapEmbedUrl: '' },
+            { id: 'lingdum', type: 'Monastery', name: "Lingdum (Ranka) Monastery", lat: 27.329977, lng: 88.650849, district: "East Sikkim", image: 'default.jpg', description: "A picturesque complex serving as a training center.", googleMapEmbedUrl: '' },
+            { id: 'gonjang', type: 'Monastery', name: "Gonjang Monastery", lat: 27.3510, lng: 88.6110, district: "East Sikkim", image: 'default.jpg', description: "Offers panoramic views of Gangtok.", googleMapEmbedUrl: '' },
+            { id: 'dodrul-chorten', type: 'Monastery', name: "Do-Drul Chorten", lat: 27.3210, lng: 88.6080, district: "East Sikkim", image: 'default.jpg', description: "A stupa surrounded by 108 prayer wheels.", googleMapEmbedUrl: '' },
+            { id: 'tsuklakhang', type: 'Monastery', name: "Tsuklakhang Palace", lat: 27.3300, lng: 88.6167, district: "East Sikkim", image: 'default.jpg', description: "The former royal palace and monastery.", googleMapEmbedUrl: '' },
+            { id: 'sa-ngor-chotshog', type: 'Monastery', name: "Sa-Ngor-Chotshog Centre", lat: 27.3167, lng: 88.6000, district: "East Sikkim", image: 'default.jpg', description: "A Tibetan refugee monastic institution.", googleMapEmbedUrl: '' },
+            { id: 'pabyuk', type: 'Monastery', name: "Pabyuk Monastery", lat: 27.2833, lng: 88.6333, district: "East Sikkim", image: 'default.jpg', description: "A small, traditional monastery.", googleMapEmbedUrl: '' },
+            { id: 'martam', type: 'Monastery', name: "Martam Monastery", lat: 27.2500, lng: 88.5833, district: "East Sikkim", image: 'default.jpg', description: "Located in the serene Martam village.", googleMapEmbedUrl: '' },
+            { id: 'aritar_gumpa', type: 'Monastery', name: "Aritar Gumpa", lat: 27.1833, lng: 88.6667, district: "East Sikkim", image: 'default.jpg', description: "One of the oldest monasteries in East Sikkim.", googleMapEmbedUrl: '' },
+            { id: 'gnathang', type: 'Monastery', name: "Gnathang Monastery", lat: 27.4167, lng: 88.8167, district: "East Sikkim", image: 'default.jpg', description: "Located in the high-altitude Gnathang Valley.", googleMapEmbedUrl: '' },
+            { id: 'phedang', type: 'Monastery', name: "Phedang Monastery", lat: 27.3000, lng: 88.7000, district: "East Sikkim", image: 'default.jpg', description: "A small monastery on the route to Tsomgo Lake.", googleMapEmbedUrl: '' },
+            { id: 'kyongnosla_monastery', type: 'Monastery', name: "Kyongnosla Monastery", lat: 27.3500, lng: 88.7500, district: "East Sikkim", image: 'default.jpg', description: "Near the Kyongnosla Alpine Sanctuary.", googleMapEmbedUrl: '' },
+            { id: 'tamzey', type: 'Monastery', name: "Tamzey Monastery", lat: 27.2667, lng: 88.6667, district: "East Sikkim", image: 'default.jpg', description: "A quiet retreat in the East Sikkim countryside.", googleMapEmbedUrl: '' },
+            { id: 'sichey', type: 'Monastery', name: "Sichey Gumpa", lat: 27.3450, lng: 88.6250, district: "East Sikkim", image: 'default.jpg', description: "A small monastery located in the Sichey area of Gangtok.", googleMapEmbedUrl: '' },
+            { id: 'karthok_monastery', type: 'Monastery', name: "Karthok Monastery", lat: 27.2167, lng: 88.6000, district: "East Sikkim", image: 'default.jpg', description: "A beautiful monastery in Pakyong.", googleMapEmbedUrl: '' },
+            { id: 'rongli', type: 'Monastery', name: "Rongli Monastery", lat: 27.2000, lng: 88.7000, district: "East Sikkim", image: 'default.jpg', description: "An important monastery in the Rongli sub-division.", googleMapEmbedUrl: '' },
+            { id: 'rhenock', type: 'Monastery', name: "Rhenock Monastery", lat: 27.1667, lng: 88.6333, district: "East Sikkim", image: 'default.jpg', description: "The main monastery for the town of Rhenock.", googleMapEmbedUrl: '' },
+            { id: 'rolep', type: 'Monastery', name: "Rolep Monastery", lat: 27.2167, lng: 88.7333, district: "East Sikkim", image: 'default.jpg', description: "Located in the serene village of Rolep.", googleMapEmbedUrl: '' },
+            { id: 'zigna', type: 'Monastery', name: "Zigna Monastery", lat: 27.25, lng: 88.75, district: "East Sikkim", image: 'default.jpg', description: "A small monastery with a rich history.", googleMapEmbedUrl: '' },
+            { id: 'sudung', type: 'Monastery', name: "Sudung Monastery", lat: 27.28, lng: 88.78, district: "East Sikkim", image: 'default.jpg', description: "A remote gompa in the eastern hills.", googleMapEmbedUrl: '' },
+            { id: 'lingtam', type: 'Monastery', name: "Lingtam Monastery", lat: 27.22, lng: 88.79, district: "East Sikkim", image: 'default.jpg', description: "A monastery on the historic Silk Route.", googleMapEmbedUrl: '' },
+            { id: 'zong', type: 'Monastery', name: "Zong Monastery", lat: 27.3, lng: 88.8, district: "East Sikkim", image: 'default.jpg', description: "A high-altitude monastery with stunning views.", googleMapEmbedUrl: '' },
+            { id: 'kupup_monastery', type: 'Monastery', name: "Kupup Monastery", lat: 27.35, lng: 88.83, district: "East Sikkim", image: 'default.jpg', description: "Near the beautiful Kupup Lake.", googleMapEmbedUrl: '' },
+            { id: 'sherathang', type: 'Monastery', name: "Sherathang Monastery", lat: 27.38, lng: 88.85, district: "East Sikkim", image: 'default.jpg', description: "A monastery at a high-altitude trading post.", googleMapEmbedUrl: '' },
+            { id: 'nathula_shrine', type: 'Monastery', name: "Nathula Pass Shrine", lat: 27.385, lng: 88.831, district: "East Sikkim", image: 'default.jpg', description: "A shrine at the Indo-China border.", googleMapEmbedUrl: '' },
+            { id: 'tsongmo_shrine', type: 'Monastery', name: "Tsongmo Lake Shrine", lat: 27.37, lng: 88.76, district: "East Sikkim", image: 'default.jpg', description: "A small shrine by the sacred Changu Lake.", googleMapEmbedUrl: '' },
+            { id: 'tumlong_monastery', type: 'Monastery', name: "Tumlong Palace Ruins & Monastery", lat: 27.41, lng: 88.58, district: "East Sikkim", image: 'default.jpg', description: "The former capital of Sikkim.", googleMapEmbedUrl: '' },
+            { id: 'khewzing-east', type: 'Monastery', name: "Khewzing Monastery (East)", lat: 27.29, lng: 88.4, district: "East Sikkim", image: 'default.jpg', description: "A small community monastery.", googleMapEmbedUrl: '' },
+            { id: 'tadong', type: 'Monastery', name: "Tadong Monastery", lat: 27.31, lng: 88.59, district: "East Sikkim", image: 'default.jpg', description: "Located in the Tadong area of Gangtok.", googleMapEmbedUrl: '' },
+            { id: 'burtuk', type: 'Monastery', name: "Burtuk Monastery", lat: 27.36, lng: 88.61, district: "East Sikkim", image: 'default.jpg', description: "Overlooks the entire Gangtok town.", googleMapEmbedUrl: '' },
+            { id: 'luing', type: 'Monastery', name: "Luing Monastery", lat: 27.38, lng: 88.63, district: "East Sikkim", image: 'default.jpg', description: "A serene monastery above Gangtok.", googleMapEmbedUrl: '' },
+            { id: 'assam-lingzey', type: 'Monastery', name: "Assam Lingzey Monastery", lat: 27.27, lng: 88.68, district: "East Sikkim", image: 'default.jpg', description: "A monastery in the village of Assam Lingzey.", googleMapEmbedUrl: '' },
+            { id: 'samsing', type: 'Monastery', name: "Samsing Monastery", lat: 27.26, lng: 88.72, district: "East Sikkim", image: 'default.jpg', description: "A small gompa with a beautiful setting.", googleMapEmbedUrl: '' },
+            { id: 'pakyong_monastery', type: 'Monastery', name: "Pakyong Monastery", lat: 27.23, lng: 88.6, district: "East Sikkim", image: 'default.jpg', description: "The main monastery in Pakyong.", googleMapEmbedUrl: '' },
+            { id: 'changey', type: 'Monastery', name: "Changey Monastery", lat: 27.2, lng: 88.62, district: "East Sikkim", image: 'default.jpg', description: "A historic monastery in East Sikkim.", googleMapEmbedUrl: '' },
+            { id: 'tintek', type: 'Monastery', name: "Tintek Monastery", lat: 27.39, lng: 88.6, district: "East Sikkim", image: 'default.jpg', description: "Offers a viewpoint of the Teesta river.", googleMapEmbedUrl: '' },
+            { id: 'salamthang', type: 'Monastery', name: "Salamthang Monastery", lat: 27.2, lng: 88.55, district: "East Sikkim", image: 'default.jpg', description: "A community monastery.", googleMapEmbedUrl: '' },
+            { id: 'tumin', type: 'Monastery', name: "Tumin Monastery", lat: 27.35, lng: 88.55, district: "East Sikkim", image: 'default.jpg', description: "Located in the quiet Tumin village.", googleMapEmbedUrl: '' },
+            { id: 'sang_monastery', type: 'Monastery', name: "Sang Monastery", lat: 27.3, lng: 88.53, district: "East Sikkim", image: 'default.jpg', description: "A culturally rich monastery.", googleMapEmbedUrl: '' },
+            { id: 'makha', type: 'Monastery', name: "Makha Monastery", lat: 27.28, lng: 88.53, district: "East Sikkim", image: 'default.jpg', description: "An important religious center for the surrounding area.", googleMapEmbedUrl: '' },
+            { id: 'sirwani', type: 'Monastery', name: "Sirwani Monastery", lat: 27.26, lng: 88.56, district: "East Sikkim", image: 'default.jpg', description: "A serene and peaceful gompa.", googleMapEmbedUrl: '' },
+            { id: 'chumthang-east', type: 'Monastery', name: "Chumthang Monastery (East)", lat: 27.24, lng: 88.54, district: "East Sikkim", image: 'default.jpg', description: "A small, traditional monastery.", googleMapEmbedUrl: '' },
+            { id: 'yumesamdong-shrine', type: 'Monastery', name: "Yumesamdong Zero Point Shrine", lat: 27.9, lng: 88.8, district: "East Sikkim", image: 'default.jpg', description: "A high-altitude shrine.", googleMapEmbedUrl: '' },
+            { id: 'katao-monastery', type: 'Monastery', name: "Katao Monastery", lat: 27.8, lng: 88.78, district: "East Sikkim", image: 'default.jpg', description: "Located in a militarily sensitive area.", googleMapEmbedUrl: '' },
+            { id: 'dzong-nag', type: 'Monastery', name: "Dzong-nag Monastery", lat: 27.33, lng: 88.7, district: "East Sikkim", image: 'default.jpg', description: "A historic Nyingma site.", googleMapEmbedUrl: '' },
+            { id: 'meyong', type: 'Monastery', name: "Meyong Monastery", lat: 27.36, lng: 88.67, district: "East Sikkim", image: 'default.jpg', description: "A small community gompa.", googleMapEmbedUrl: '' },
+            { id: 'senti', type: 'Monastery', name: "Senti Monastery", lat: 27.31, lng: 88.68, district: "East Sikkim", image: 'default.jpg', description: "Offers views of the surrounding valleys.", googleMapEmbedUrl: '' },
+            { id: 'ringdang', type: 'Monastery', name: "Ringdang Monastery", lat: 27.29, lng: 88.72, district: "East Sikkim", image: 'default.jpg', description: "A local place of worship.", googleMapEmbedUrl: '' },
+            { id: 'lingzya', type: 'Monastery', name: "Lingzya Monastery", lat: 27.27, lng: 88.75, district: "East Sikkim", image: 'default.jpg', description: "A remote monastery in East Sikkim.", googleMapEmbedUrl: '' },
+            { id: 'gnon', type: 'Monastery', name: "Gnon Monastery", lat: 27.25, lng: 88.8, district: "East Sikkim", image: 'default.jpg', description: "A historic monastery.", googleMapEmbedUrl: '' },
+            { id: 'thak-chang', type: 'Monastery', name: "Thak-chang Monastery", lat: 27.22, lng: 88.82, district: "East Sikkim", image: 'default.jpg', description: "A serene and peaceful location.", googleMapEmbedUrl: '' },
+            { id: 'pangthang', type: 'Monastery', name: "Pangthang Monastery", lat: 27.35, lng: 88.63, district: "East Sikkim", image: 'default.jpg', description: "Located in the Pangthang area of Gangtok.", googleMapEmbedUrl: '' },
+            { id: 'tathangchen', type: 'Monastery', name: "Tathangchen Monastery", lat: 27.34, lng: 88.6, district: "East Sikkim", image: 'default.jpg', description: "A prominent monastery within Gangtok.", googleMapEmbedUrl: '' },
+            { id: 'deorali_monastery', type: 'Monastery', name: "Deorali Monastery", lat: 27.32, lng: 88.61, district: "East Sikkim", image: 'default.jpg', description: "Located near the Namgyal Institute of Tibetology.", googleMapEmbedUrl: '' },
+            { id: 'dharma-chakra-centre', type: 'Monastery', name: "Rumtek Dharma Chakra Centre", lat: 27.29, lng: 88.56, district: "East Sikkim", image: 'default.jpg', description: "The main seat of the Karma Kagyu lineage.", googleMapEmbedUrl: '' },
+            { id: 'gangtok-gumpa', type: 'Monastery', name: "Gangtok Gumpa", lat: 27.33, lng: 88.61, district: "East Sikkim", image: 'default.jpg', description: "A central monastery in the capital.", googleMapEmbedUrl: '' },
+            { id: 'lingjey', type: 'Monastery', name: "Lingjey Monastery", lat: 27.28, lng: 88.69, district: "East Sikkim", image: 'default.jpg', description: "A village monastery.", googleMapEmbedUrl: '' },
+            { id: 'parbing_monastery', type: 'Monastery', name: "Parbing Monastery", lat: 27.24, lng: 88.64, district: "East Sikkim", image: 'default.jpg', description: "A local religious center.", googleMapEmbedUrl: '' },
+            { id: 'samdong_monastery', type: 'Monastery', name: "Samdong Monastery", lat: 27.4, lng: 88.64, district: "East Sikkim", image: 'default.jpg', description: "A historic monastery in East Sikkim.", googleMapEmbedUrl: '' },
+            { id: 'rakdong-tintek', type: 'Monastery', name: "Rakdong-Tintek Monastery", lat: 27.39, lng: 88.62, district: "East Sikkim", image: 'default.jpg', description: "Serves the local communities.", googleMapEmbedUrl: '' },
+            { id: 'khamdong', type: 'Monastery', name: "Khamdong Monastery", lat: 27.27, lng: 88.58, district: "East Sikkim", image: 'default.jpg', description: "An important monastery in the Khamdong area.", googleMapEmbedUrl: '' },
+            { id: 'nathu-gumpa', type: 'Monastery', name: "Nathu-Gumpa Monastery", lat: 27.38, lng: 88.82, district: "East Sikkim", image: 'default.jpg', description: "A small monastery near Nathu La pass.", googleMapEmbedUrl: '' },
+            { id: 'tseten-tashi', type: 'Monastery', name: "Tseten Tashi Cave", lat: 27.36, lng: 88.59, district: "East Sikkim", image: 'default.jpg', description: "A sacred cave and pilgrimage site.", googleMapEmbedUrl: '' },
+
+            // --- Other Key Attractions ---
+            { id: 'tsomgo_lake', type: 'Lake', name: "Tsomgo Lake", lat: 27.3747, lng: 88.7622, district: "East Sikkim", image: 'tsomgo_lake.jpg', description: "A stunning high-altitude glacial lake, considered sacred by locals.", googleMapEmbedUrl: 'http://googleusercontent.com/maps/google.com/8' },
+            { id: 'nathula_pass', type: 'Historical Site', name: "Nathula Pass", lat: 27.3862, lng: 88.8315, district: "East Sikkim", image: 'nathula_pass.jpg', description: "A mountain pass on the historic Silk Route, at the Indo-China border.", googleMapEmbedUrl: 'http://googleusercontent.com/maps/google.com/9' },
+            { id: 'pelling_skywalk', type: 'Viewpoint', name: "Pelling Skywalk", lat: 27.3055, lng: 88.2435, district: "West Sikkim", image: 'pelling_skywalk.jpg', description: "India's first glass skywalk with breathtaking views of the Himalayas.", googleMapEmbedUrl: 'http://googleusercontent.com/maps/google.com/10' },
+            { id: 'gurudongmar_lake', type: 'Lake', name: "Gurudongmar Lake", lat: 27.9798, lng: 88.7118, district: "North Sikkim", image: 'gurudongmar_lake.jpg', description: "One of the highest lakes in the world, revered as sacred.", googleMapEmbedUrl: 'http://googleusercontent.com/maps/google.com/11' },
+            { id: 'yumthang_valley', type: 'Viewpoint', name: "Yumthang Valley", lat: 27.826, lng: 88.695, district: "North Sikkim", image: 'yumthang_valley.jpg', description: "A picturesque valley of flowers surrounded by snow-capped mountains.", googleMapEmbedUrl: 'http://googleusercontent.com/maps/google.com/12' },
+            { id: 'kanchenjunga_falls', type: 'Waterfall', name: "Kanchenjunga Falls", lat: 27.3276, lng: 88.2045, district: "West Sikkim", image: 'kanchenjunga_falls.jpg', description: "A perennial waterfall believed to originate from the glaciers of Mt. Kanchenjunga.", googleMapEmbedUrl: 'http://googleusercontent.com/maps/google.com/13' },
+            { id: 'seven_sisters_waterfall', type: 'Waterfall', name: "Seven Sisters Waterfall", lat: 27.420, lng: 88.625, district: "North Sikkim", image: 'seven_sisters_waterfall.jpg', description: "A set of seven different waterfalls cascading down a rugged cliff.", googleMapEmbedUrl: 'http://googleusercontent.com/maps/google.com/14' },
+            { id: 'rabdentse_ruins', type: 'Historical Site', name: "Rabdentse Ruins", lat: 27.3050, lng: 88.2650, district: "West Sikkim", image: 'rabdentse_ruins.jpg', description: "The archeological site of the second capital of the former Kingdom of Sikkim.", googleMapEmbedUrl: 'http://googleusercontent.com/maps/google.com/15' },
+            { id: 'buddha_park', type: 'Cultural Park', name: "Buddha Park of Ravangla", lat: 27.3105, lng: 88.3615, district: "South Sikkim", image: 'buddha_park.jpg', description: "Features a 130-foot high statue of the Buddha in a beautifully landscaped park.", googleMapEmbedUrl: 'http://googleusercontent.com/maps/google.com/16' },
+            { id: 'samdruptse_hill', type: 'Viewpoint', name: "Samdruptse Hill", lat: 27.2286, lng: 88.2675, district: "South Sikkim", image: 'samdruptse_hill.jpg', description: "Home to a giant statue of Guru Padmasambhava, offering panoramic views.", googleMapEmbedUrl: 'http://googleusercontent.com/maps/google.com/17' },
+            { id: 'char_dham', type: 'Cultural Park', name: "Siddheshwar Dham (Char Dham)", lat: 27.1338, lng: 88.3307, district: "South Sikkim", image: 'char_dham.jpg', description: "A pilgrimage complex with replicas of India's four sacred Dhams and a giant Shiva statue.", googleMapEmbedUrl: 'http://googleusercontent.com/maps/google.com/18' },
+            { id: 'temi_tea_garden', type: 'Viewpoint', name: "Temi Tea Garden", lat: 27.2345, lng: 88.4221, district: "South Sikkim", image: 'temi_tea_garden.jpg', description: "The only tea estate in Sikkim, renowned for producing high-quality organic tea.", googleMapEmbedUrl: 'http://googleusercontent.com/maps/google.com/19' },
+            { id: 'maenam_sanctuary', type: 'Sanctuary', name: "Maenam Wildlife Sanctuary", lat: 27.29, lng: 88.36, district: "South Sikkim", image: 'maenam.jpg', description: "Home to rare flora and fauna, including Red Panda and Himalayan Black Bear.", googleMapEmbedUrl: 'http://googleusercontent.com/maps/google.com/20' },
+            { id: 'baba_mandir', type: 'Historical Site', name: "Baba Harbhajan Singh Mandir", lat: 27.3667, lng: 88.8500, district: "East Sikkim", image: 'baba_mandir.jpg', description: "A unique shrine dedicated to an Indian army soldier, believed to protect the soldiers posted here.", googleMapEmbedUrl: 'http://googleusercontent.com/maps/google.com/21' },
+            { id: 'mg_marg', type: 'Cultural Park', name: "MG Marg, Gangtok", lat: 27.3314, lng: 88.6138, district: "East Sikkim", image: 'mg_marg.jpg', description: "The main street of Gangtok, a litter and spit-free zone and the town's social hub.", googleMapEmbedUrl: 'http://googleusercontent.com/maps/google.com/22' },
+            { id: 'ganesh_tok', type: 'Viewpoint', name: "Ganesh Tok", lat: 27.352, lng: 88.625, district: "East Sikkim", image: 'ganesh_tok.jpg', description: "A small temple dedicated to Lord Ganesha, offering spectacular views of Gangtok.", googleMapEmbedUrl: 'http://googleusercontent.com/maps/google.com/23' },
+            { id: 'hanuman_tok', type: 'Viewpoint', name: "Hanuman Tok", lat: 27.359, lng: 88.630, district: "East Sikkim", image: 'hanuman_tok.jpg', description: "A temple complex dedicated to Lord Hanuman with serene surroundings and views of Kanchenjunga.", googleMapEmbedUrl: 'http://googleusercontent.com/maps/google.com/24' },
+            { id: 'tashi_viewpoint', type: 'Viewpoint', name: "Tashi Viewpoint", lat: 27.369, lng: 88.631, district: "East Sikkim", image: 'tashi_viewpoint.jpg', description: "A popular spot for sunrise views of Mount Kanchenjunga and Mount Siniolchu.", googleMapEmbedUrl: 'http://googleusercontent.com/maps/google.com/25' },
+            { id: 'zuluk', type: 'Viewpoint', name: "Zuluk", lat: 27.25, lng: 88.78, district: "East Sikkim", image: 'zuluk.jpg', description: "A small hamlet on the historic Silk Route, famous for its 32 hairpin bends.", googleMapEmbedUrl: 'http://googleusercontent.com/maps/google.com/26' },
+            { id: 'banjhakri_falls', type: 'Waterfall', name: "Banjhakri Falls and Energy Park", lat: 27.318, lng: 88.583, district: "East Sikkim", image: 'banjhakri_falls.jpg', description: "A 100-foot waterfall set in a landscaped park with ethnic sculptures and gazebos.", googleMapEmbedUrl: 'http://googleusercontent.com/maps/google.com/27' },
+            { id: 'namgyal_institute', type: 'Historical Site', name: "Namgyal Institute of Tibetology", lat: 27.320, lng: 88.606, district: "East Sikkim", image: 'nit.jpg', description: "A museum and library specializing in Tibetan culture and Vajrayana Buddhism.", googleMapEmbedUrl: 'http://googleusercontent.com/maps/google.com/28' }
+        ];
+        
+        let map;
+        const markers = {};
+        let activeCategory = 'All';
+        let routingControl = null;
+        let currentAudio = null;
+        let activeLocation = null;
+        let chatHistory = [];
+        let narrationAudio = null;
+        let markerClusterGroup;
+
+        const accordionContainer = document.getElementById('accordion-container');
+        const categoryFilters = document.getElementById('category-filters');
+        const searchInput = document.getElementById('search-input');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const toggleIcon = document.getElementById('toggle-icon');
+        const beginGpsBtn = document.getElementById('begin-gps-btn');
+        const guideCardOverlay = document.getElementById('guide-card-overlay');
+        const monasteryViewFrame = document.getElementById('monastery-view-frame');
+        const monasteryName = document.getElementById('monastery-name');
+        const statusText = document.getElementById('status-text');
+        const guideChatInput = document.getElementById('guide-chat-input');
+        const guideChatSend = document.getElementById('guide-chat-send');
+        const closeCardBtn = document.getElementById('close-card-btn');
+
+        function initMap() {
+            map = L.map('map', { zoomControl: false }).setView([27.5330, 88.5122], 9);
+            L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+            // LIGHT GREYISH-WHITE MAP TILE
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                attribution: '© OpenStreetMap © CARTO',
+            }).addTo(map);
+            
+            fetch(GEOJSON_URL).then(res => res.json()).then(data => {
+                L.geoJSON(data, { style: { weight: 1, color: 'var(--accent-teal)', fillOpacity: 0.1, fillColor: 'var(--accent-teal)' } }).addTo(map);
+            });
+            
+            markerClusterGroup = L.markerClusterGroup();
+            map.addLayer(markerClusterGroup);
+
+            populateCategoryFilters();
+            populateSidebarAndMarkers();
+        }
+
+        function getIconForType(type) {
+            const icons = {
+                'Monastery': 'fa-place-of-worship',
+                'Lake': 'fa-water',
+                'Viewpoint': 'fa-mountain-sun',
+                'Historical Site': 'fa-landmark',
+                'Waterfall': 'fa-waterfall',
+                'Cultural Park': 'fa-palette',
+                'Sanctuary': 'fa-tree',
+                'default': 'fa-location-dot'
+            };
+            // Using custom classes defined in <style>
+            return L.divIcon({
+                html: `<div class="leaflet-div-icon w-8 h-8 rounded-full flex items-center justify-center shadow-lg border-2"><i class="fa-solid ${icons[type] || icons['default']}"></i></div>`,
+                className: '', iconSize: [32, 32], iconAnchor: [16, 16], popupAnchor: [0, -20]
+            });
+        }
+
+        function populateSidebarAndMarkers() {
+            accordionContainer.innerHTML = '';
+            markerClusterGroup.clearLayers();
+            
+            for (const key in markers) { delete markers[key]; }
+
+            const filteredLocations = activeCategory === 'All'
+                ? locations
+                : locations.filter(loc => loc.type === activeCategory);
+            
+            const locationsByDistrict = filteredLocations.reduce((acc, loc) => {
+                (acc[loc.district] = acc[loc.district] || []).push(loc);
+                return acc;
+            }, {});
+
+            if (Object.keys(locationsByDistrict).length === 0) {
+                accordionContainer.innerHTML = `<p class="p-4 text-text-secondary">No locations found for this category.</p>`;
+            }
+
+            Object.keys(locationsByDistrict).sort().forEach(district => {
+                const accordionItem = document.createElement('div');
+                const header = document.createElement('div');
+                header.className = 'filter-accordion-header p-4 flex justify-between items-center';
+                header.innerHTML = `<h3 class="font-semibold">${district}</h3><i class="fa-solid fa-chevron-down transform transition-transform"></i>`;
+                const content = document.createElement('div');
+                content.className = 'filter-accordion-content';
+
+                locationsByDistrict[district].sort((a, b) => a.name.localeCompare(b.name)).forEach(location => {
+                    const item = document.createElement('div');
+                    item.className = 'filter-item p-4 cursor-pointer';
+                    item.dataset.id = location.id;
+                    item.innerHTML = `<h4 class="font-semibold text-text-primary">${location.name}</h4><p class="text-sm text-text-secondary">${(location.description || '').substring(0, 70)}...</p>`;
+                    item.addEventListener('click', () => {
+                        setActiveItem(location.id);
+                        map.setView([location.lat, location.lng], 14);
+                        markers[location.id]?.openPopup();
+                    });
+                    content.appendChild(item);
+
+                    const marker = L.marker([location.lat, location.lng], { icon: getIconForType(location.type) });
+                    markerClusterGroup.addLayer(marker);
+                    
+                    const popupContent = `
+                        <div class="popup-card">
+                            <div class="popup-card-content">
+                                <h3 class="popup-card-title">${location.name}</h3>
+                                <p class="popup-card-district">${location.district}</p>
+                                <p class="popup-card-description">${location.description || ''}</p>
+                                <button class="popup-card-button" data-lat="${location.lat}" data-lng="${location.lng}">Get Directions</button>
+                            </div>
+                        </div>`;
+                    marker.bindPopup(popupContent);
+                    
+                    marker.on('popupopen', () => {
+                        setActiveItem(location.id);
+                    });
+
+                    marker.on('popupclose', () => {
+                        const activeItem = document.querySelector(`.filter-item[data-id="${location.id}"]`);
+                        if(activeItem) {
+                            activeItem.classList.remove('active');
+                        }
+                    });
+
+                    marker.on('popupopen', (e) => {
+                        const popup = e.popup.getElement();
+                        popup.querySelector('[data-lat]').addEventListener('click', (ev) => getDirections(ev.currentTarget.dataset.lat, ev.currentTarget.dataset.lng));
+                        popup.querySelector('.narration-btn').addEventListener('click', (ev) => handleLiveNarration(location.description, ev.currentTarget));
+                    });
+                    markers[location.id] = marker;
+                });
+                
+                header.addEventListener('click', () => {
+                    header.classList.toggle('active');
+                    header.querySelector('i').classList.toggle('rotate-180');
+                });
+                accordionItem.appendChild(header);
+                accordionItem.appendChild(content);
+                accordionContainer.appendChild(accordionItem);
+            });
+        }
+        
+        function populateCategoryFilters() {
+            const categories = ['All', ...new Set(locations.map(loc => loc.type).filter(Boolean))].sort();
+            categoryFilters.innerHTML = '';
+            categories.forEach(category => {
+                const button = document.createElement('button');
+                button.className = 'category-filter-btn px-3 py-1 rounded-full text-sm';
+                button.textContent = category;
+                if (category === activeCategory) button.classList.add('active');
+                
+                button.addEventListener('click', () => {
+                    activeCategory = category;
+                    document.querySelectorAll('.category-filter-btn').forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    populateSidebarAndMarkers();
+                });
+                categoryFilters.appendChild(button);
+            });
+        }
+
+        function setActiveItem(id) {
+            document.querySelectorAll('.filter-item').forEach(item => {
+                item.classList.toggle('active', item.dataset.id === id);
+            });
+        }
+
+        function filterLocations() {
+            const query = searchInput.value.toLowerCase();
+            document.querySelectorAll('.filter-item').forEach(item => {
+                const name = item.querySelector('h4').textContent.toLowerCase();
+                const isVisible = name.includes(query);
+                item.style.display = isVisible ? 'block' : 'none';
+            });
+        }
+
+        function toggleSidebar() {
+            const isCollapsed = sidebar.classList.contains('w-0');
+            
+            sidebar.classList.toggle('w-0');
+            sidebar.classList.toggle('w-full', !isCollapsed);
+            sidebar.classList.toggle('md:w-96', !isCollapsed);
+            
+            // Toggle visibility for non-header children
+            sidebar.querySelectorAll(':scope > div:not(.sidebar-header)').forEach(child => child.classList.toggle('hidden', isCollapsed));
+            
+            // Adjust toggle button position
+            const newLeft = isCollapsed ? '0px' : (window.innerWidth >= 768 ? '24rem' : '100%');
+            sidebarToggle.style.left = newLeft;
+            
+            // Toggle chevron icon
+            toggleIcon.classList.toggle('fa-chevron-left', !isCollapsed);
+            toggleIcon.classList.toggle('fa-chevron-right', isCollapsed);
+        }
+        
+        function handleGpsRequest() {
+            if (!navigator.geolocation) return alert('Geolocation is not supported.');
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const { latitude, longitude } = pos.coords;
+                    const closest = findClosestLocation(latitude, longitude);
+                    if (closest && closest.distance < 5) {
+                        activateGuide(closest.location, true);
+                    } else {
+                        alert('No registered attractions nearby. Please navigate using the map or search.'); 
+                    }
+                }, 
+                (err) => alert(`Error: ${err.message}`)
+            );
+        }
+        
+        function activateGuide(location, shouldZoom) {
+            activeLocation = location;
+            chatHistory = [];
+            guideCardOverlay.classList.remove('hidden');
+            monasteryViewFrame.src = location.googleMapEmbedUrl || '';
+            monasteryName.textContent = location.name;
+            statusText.innerHTML = `I am your AI guide for <strong>${location.name}</strong>. Ask me anything!`;
+            guideChatInput.value = '';
+            if (shouldZoom) {
+                map.setView([location.lat, location.lng], 14);
+                setActiveItem(location.id);
+            }
+        }
+        
+       
+
+        function getDirections(destLat, destLng) {
+            if (!navigator.geolocation) return alert('Geolocation is not supported.');
+            navigator.geolocation.getCurrentPosition(position => {
+                const startLatLng = L.latLng(position.coords.latitude, position.coords.longitude);
+                if (routingControl) map.removeControl(routingControl);
+                routingControl = L.Routing.control({
+                    waypoints: [startLatLng, L.latLng(destLat, destLng)],
+                    routeWhileDragging: true,
+                    createMarker: () => null,
+                    lineOptions: { styles: [{color: 'var(--accent-teal)', opacity: 0.8, weight: 6}] }
+                }).addTo(map);
+            }, () => alert('Could not get your location.'));
+        }
+
+        function findClosestLocation(userLat, userLon) {
+            let closest = { location: null, distance: Infinity };
+            locations.forEach(location => {
+                const R = 6371;
+                const dLat = (location.lat - userLat) * Math.PI / 180;
+                const dLon = (location.lng - userLon) * Math.PI / 180;
+                const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(userLat * Math.PI / 180) * Math.cos(location.lat * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                const distance = R * c;
+                if (distance < closest.distance) {
+                    closest = { location, distance };
+                }
+            });
+            return closest;
+        }
+
+        function closeGuideCard() {
+            guideCardOverlay.classList.add('hidden');
+        }
+
+        // --- Event Listeners ---
+        initMap();
+        searchInput.addEventListener('input', filterLocations);
+        sidebarToggle.addEventListener('click', toggleSidebar);
+        beginGpsBtn.addEventListener('click', handleGpsRequest);
+        closeCardBtn.addEventListener('click', closeGuideCard);
+    });
+</script>
+</body>
+</html>

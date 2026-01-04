@@ -1,0 +1,140 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel & Stay - Monastery360</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f7f5; }
+        .logo-font { font-family: 'Playfair Display', serif; }
+        .custom-gradient { background: linear-gradient(135deg, #134e4a 0%, #064e3b 100%); }
+    </style>
+</head>
+<body class="antialiased text-stone-700">
+
+<header class="bg-teal-900 sticky top-0 z-50 shadow-lg">
+    <nav class="container mx-auto px-6">
+        <div class="flex items-center justify-between h-20">
+            <a href="/" class="flex items-center space-x-3">
+                <span class="text-2xl font-bold text-white logo-font">Monastery360</span>
+            </a>
+            <div class="hidden md:flex items-center h-full">
+                <a href="/" class="text-stone-200 hover:text-white font-medium nav-link px-6">Home</a>
+                <a href="/events/" class="text-white font-medium nav-link px-6">Events</a>
+                <a href="/book/" class="text-stone-200 hover:text-white font-medium nav-link px-6">Book</a>
+                <a href="/travel/" class="text-stone-200 hover:text-white font-medium nav-link px-6">Travel</a>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <section class="relative h-[40vh] flex items-center justify-center overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <img src="{% static 'mo.jpg' %}" class="w-full h-full object-cover opacity-50" alt="Sikkim Landscape">
+            <div class="absolute inset-0 bg-gradient-to-b from-teal-900/20 to-[#f8f7f5]"></div>
+        </div>
+        <div class="relative z-10 text-center">
+            <h1 class="text-5xl md:text-6xl font-bold text-teal-900 logo-font mb-2">Plan Your Visit</h1>
+            <p class="text-lg text-teal-800 font-medium">Navigating the heights of the last Shangri-La.</p>
+        </div>
+    </section>
+
+    <div class="container mx-auto px-6 py-12">
+        <div class="grid lg:grid-cols-3 gap-12">
+            <div class="lg:col-span-2">
+                <h2 class="text-3xl font-bold text-teal-900 mb-8 logo-font">Logistics & Permits</h2>
+                <div class="space-y-6">
+                    <div class="p-8 bg-white rounded-2xl border-l-8 border-teal-600 shadow-sm hover:shadow-md transition">
+                        <div class="flex items-start space-x-4">
+                            <i class="fa-solid fa-passport text-3xl text-teal-600 mt-1"></i>
+                            <div>
+                                <h4 class="font-bold text-teal-800 text-xl mb-2">Entry Permits (ILP)</h4>
+                                <p class="text-stone-600 leading-relaxed">Foreign nationals require an Inner Line Permit (ILP) to enter Sikkim. Indian nationals require Protected Area Permits (PAP) for restricted areas like North Sikkim and Nathu La.</p>
+                                <button class="mt-4 text-teal-600 font-bold text-sm uppercase tracking-wider hover:text-teal-800">Apply Online &rarr;</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-8 bg-white rounded-2xl border-l-8 border-teal-600 shadow-sm hover:shadow-md transition">
+                        <div class="flex items-start space-x-4">
+                            <i class="fa-solid fa-plane-up text-3xl text-teal-600 mt-1"></i>
+                            <div>
+                                <h4 class="font-bold text-teal-800 text-xl mb-2">How to Reach</h4>
+                                <p class="text-stone-600 leading-relaxed mb-3"><strong>By Air:</strong> Pakyong Airport (Limited) or Bagdogra (IXB) which is 125km from Gangtok.</p>
+                                <p class="text-stone-600 leading-relaxed"><strong>By Road:</strong> Taxis are available from Siliguri and NJP station. We recommend private SUVs for mountain roads.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h2 class="text-3xl font-bold text-teal-900 mt-16 mb-8 logo-font">Best Time to Visit</h2>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-teal-50 p-6 rounded-2xl border border-teal-100">
+                        <h5 class="font-bold text-teal-900 mb-2 italic">Spring (March - May)</h5>
+                        <p class="text-sm text-stone-600">Ideal for the Flower Festival and Rhododendron treks. Clear skies and blooming valleys.</p>
+                    </div>
+                    <div class="bg-stone-100 p-6 rounded-2xl border border-stone-200">
+                        <h5 class="font-bold text-stone-800 mb-2 italic">Autumn (Oct - Dec)</h5>
+                        <p class="text-sm text-stone-600">Perfect for mountain views and monastery festivals. Crisp air and golden landscapes.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="space-y-8">
+                <div class="bg-teal-900 p-8 rounded-3xl text-white shadow-xl">
+                    <h3 class="text-2xl font-bold mb-6 logo-font border-b border-teal-700 pb-2">Best Stays</h3>
+                    <ul class="space-y-6">
+                        <li class="group">
+                            <div class="font-bold group-hover:text-teal-300 transition cursor-pointer">The Elgin Nor-Khill</div>
+                            <div class="text-xs text-teal-200 font-light italic">Heritage Luxury in Gangtok</div>
+                        </li>
+                        <li class="group">
+                            <div class="font-bold group-hover:text-teal-300 transition cursor-pointer">Pelling Homestays</div>
+                            <div class="text-xs text-teal-200 font-light italic">Local immersion & Kanchenjunga views</div>
+                        </li>
+                        <li class="group">
+                            <div class="font-bold group-hover:text-teal-300 transition cursor-pointer">Lachen Alpine Resort</div>
+                            <div class="text-xs text-teal-200 font-light italic">Basecamp for Gurudongmar Lake</div>
+                        </li>
+                    </ul>
+                    <button class="w-full mt-8 bg-white text-teal-900 py-3 rounded-full font-bold hover:bg-teal-100 transition">View All Stays</button>
+                </div>
+
+                <div class="bg-white p-8 rounded-3xl shadow-lg border border-stone-100">
+                    <h3 class="text-xl font-bold text-teal-900 mb-4 logo-font">Packing Essentials</h3>
+                    <ul class="space-y-3 text-sm text-stone-500">
+                        <li><i class="fa-solid fa-check text-teal-600 mr-2"></i> Heavy woolens (even in Summer)</li>
+                        <li><i class="fa-solid fa-check text-teal-600 mr-2"></i> Comfortable hiking shoes</li>
+                        <li><i class="fa-solid fa-check text-teal-600 mr-2"></i> Personal medicine for altitude</li>
+                        <li><i class="fa-solid fa-check text-teal-600 mr-2"></i> Power bank & extra batteries</li>
+                        <li><i class="fa-solid fa-check text-teal-600 mr-2"></i> Respectful attire for temples</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="py-20 custom-gradient text-white mt-12">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-3xl font-bold logo-font mb-4">Need a Custom Itinerary?</h2>
+            <p class="text-teal-100 mb-8 max-w-xl mx-auto">Our local experts can help you plan a spiritual journey tailored to your schedule.</p>
+            <a href="#" class="inline-block bg-white text-teal-900 px-10 py-4 rounded-full font-bold hover:bg-teal-50 transition shadow-xl">Talk to an Expert</a>
+        </div>
+    </section>
+</main>
+
+<footer class="bg-teal-950 text-stone-400 py-12 text-center mt-auto">
+    <div class="container mx-auto px-6">
+        <p class="logo-font text-white text-xl mb-2">Monastery360</p>
+        <p class="text-xs">&copy; 2026 Monastery360. All Rights Reserved.</p>
+    </div>
+</footer>
+
+</body>
+</html>

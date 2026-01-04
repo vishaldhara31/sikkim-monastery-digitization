@@ -1,0 +1,234 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Archives - Monastery360</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f7f5; color: #333333; }
+        .logo-font { font-family: 'Playfair Display', serif; }
+        .archive-card { transition: transform 0.3s ease, box-shadow 0.3s ease; opacity: 0; animation: fadeIn 0.5s ease-out forwards; }
+        .archive-card:hover { transform: translateY(-8px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        #archive-modal { transition: opacity 0.3s ease-in-out; }
+        .modal-content { animation: fadeInScale 0.4s cubic-bezier(0.165, 0.84, 0.44, 1) forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInScale { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        .form-select, .form-input { border-color: #e2e8f0; transition: border-color 0.2s, box-shadow 0.2s; }
+        .form-select:focus, .form-input:focus { outline: none; border-color: #0d9488; box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.2); }
+        .tag { font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.75rem; border-radius: 9999px; }
+        .tag-primary { background-color: rgba(13, 148, 136, 0.1); color: #0f766e; }
+        .tag-secondary { background-color: rgba(120, 113, 108, 0.1); color: #78716c; }
+        .dropdown:hover .dropdown-menu { display: block; }
+        .dropdown-menu { display: none; }
+        .nav-link { position: relative; }
+        .nav-link::after { content: ''; position: absolute; width: 0; height: 2px; bottom: -4px; left: 50%; transform: translateX(-50%); background-color: #0d9488; transition: width 0.3s ease-in-out; }
+        .nav-link:hover::after, .nav-link.active::after { width: 100%; }
+    </style>
+</head>
+<body class="antialiased text-stone-700">
+
+<header class="bg-teal-900 sticky top-0 z-50 shadow-lg">
+    <nav class="container mx-auto px-6">
+        <div class="flex items-center justify-between h-20">
+            <a href="/" class="flex items-center space-x-3">
+                <span class="text-2xl font-bold text-white logo-font">Monastery360</span>
+            </a>
+            <div class="hidden md:flex items-center h-full">
+                <a href="/" class="text-stone-200 hover:text-white font-medium nav-link px-6">Home</a>
+                <a href="/archives/" class="text-white font-medium nav-link px-6">Archives</a>
+                <a href="/manuscripts/" class="text-stone-200 hover:text-white font-medium nav-link px-6">Manuscripts</a>
+                <a href="/murals/" class="text-stone-200 hover:text-white font-medium nav-link px-6">Murals</a>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <section class="bg-teal-50 border-b border-teal-200 py-20">
+        <div class="container mx-auto px-6 text-center">
+            <h1 class="text-5xl md:text-7xl font-title font-bold text-teal-900 logo-font">The Archives of Sikkim</h1>
+            <p class="mt-4 text-lg text-stone-600 max-w-3xl mx-auto">Explore a curated collection of digitized manuscripts, murals, and historical artifacts from Sikkim's most revered monasteries.</p>
+        </div>
+    </section>
+
+    <section class="py-16">
+        <div class="container mx-auto px-6">
+            <div class="bg-white p-6 rounded-xl shadow-lg mb-12 flex flex-col md:flex-row gap-4 items-center border border-stone-200">
+                <div class="relative flex-grow w-full md:w-auto">
+                    <i class="fa-solid fa-search absolute left-4 top-1/2 -translate-y-1/2 text-stone-400"></i>
+                    <input type="text" id="search-input" placeholder="Search by title or keyword..." class="w-full pl-12 pr-4 py-3 border rounded-lg focus:outline-none form-input text-stone-700">
+                </div>
+                <div class="flex gap-4 w-full md:w-auto">
+                    <select id="type-filter" class="w-full md:w-48 border rounded-lg py-3 px-4 form-select text-stone-700">
+                        <option value="all">All Types</option>
+                        <option value="Manuscript">Manuscript</option>
+                        <option value="Mural">Mural</option>
+                        <option value="Artifact">Artifact</option>
+                    </select>
+                    <select id="monastery-filter" class="w-full md:w-52 border rounded-lg py-3 px-4 form-select text-stone-700">
+                        <option value="all">All Monasteries</option>
+                        <option value="Rumtek">Rumtek Monastery</option>
+                        <option value="Pemayangtse">Pemayangtse Monastery</option>
+                        <option value="Tashiding">Tashiding Monastery</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="archive-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8"></div>
+            <p id="no-results" class="hidden text-center text-stone-500 mt-12 text-lg">No items match your search criteria.</p>
+        </div>
+    </section>
+</main>
+
+<div id="archive-modal" class="hidden fixed inset-0 bg-black/70 z-[100] flex items-center justify-center p-4">
+    <div class="bg-[#fdfdfc] rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col md:flex-row modal-content">
+        <div class="w-full md:w-1/2 p-4">
+            <img id="modal-image" src="" alt="Archive Image" class="w-full h-full object-contain rounded-md border border-stone-200 shadow-md">
+        </div>
+        <div class="w-full md:w-1/2 p-6 flex flex-col">
+            <div class="flex justify-between items-start mb-4">
+                <h2 id="modal-title" class="text-3xl font-bold logo-font text-teal-900 leading-tight"></h2>
+                <button id="close-modal-btn" class="text-4xl text-stone-400 hover:text-teal-600 transition-colors leading-none">&times;</button>
+            </div>
+            <div class="flex items-center gap-4 mb-6">
+                <span id="modal-type" class="tag tag-primary"></span>
+                <span id="modal-monastery" class="tag tag-secondary"></span>
+            </div>
+            <div class="flex-1 overflow-y-auto pr-2">
+                <p id="modal-description" class="text-stone-600 leading-relaxed"></p>
+            </div>
+            <div class="mt-6 pt-4 border-t border-stone-200">
+                <a id="learn-more-link" href="#" class="inline-block bg-teal-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-teal-700 transition-colors">Learn More &rarr;</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="bg-teal-900 text-stone-300 mt-16">
+    <div class="container mx-auto px-6 py-12 grid md:grid-cols-4 gap-8">
+        <div>
+            <h3 class="font-bold text-white text-lg mb-4 logo-font">Monastery360</h3>
+            <p class="text-sm">Exploring the heritage and natural beauty of the Himalayas.</p>
+        </div>
+        <div>
+            <h3 class="font-bold text-white text-lg mb-4">Quick Links</h3>
+            <ul class="space-y-2 text-sm">
+                <li><a href="/" class="hover:text-white">Home</a></li>
+                <li><a href="#" class="hover:text-white">About Us</a></li>
+                <li><a href="#" class="hover:text-white">Contact</a></li>
+            </ul>
+        </div>
+        <div>
+            <h3 class="font-bold text-white text-lg mb-4">Legal</h3>
+            <ul class="space-y-2 text-sm">
+                <li><a href="#" class="hover:text-white">Privacy Policy</a></li>
+                <li><a href="#" class="hover:text-white">Terms of Service</a></li>
+            </ul>
+        </div>
+        <div>
+            <h3 class="font-bold text-white text-lg mb-4">Follow Us</h3>
+            <div class="flex space-x-4">
+                <a href="#" class="text-xl hover:text-white"><i class="fab fa-facebook"></i></a>
+                <a href="#" class="text-xl hover:text-white"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="text-xl hover:text-white"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="text-xl hover:text-white"><i class="fab fa-youtube"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="mt-12 border-t border-teal-800 pt-8 text-center text-sm text-stone-400">
+        &copy; 2025 Monastery360. All Rights Reserved.
+    </div>
+</footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- Archive Data: FIX APPLIED HERE ---
+        // The {% static 'path' %} tags are correctly placed within quotes, 
+        // allowing Django to process them before the JavaScript runs.
+        const archiveData = [
+            { id: 1, title: 'The Life of Guru Rinpoche', type: 'Mural', monastery: 'Rumtek', image: "{% static '1.jpg' %}", description: 'This vibrant mural depicts the key life events of Guru Rinpoche (Padmasambhava), the master credited with bringing Buddhism to Tibet and Sikkim.', learnMoreUrl: "/murals/#guru-rinpoche" },
+            { id: 2, title: 'Prajñāpāramitā Sūtra', type: 'Manuscript', monastery: 'Pemayangtse', image: "{% static '2.jpg' %}", description: 'A scanned page from a rare "Perfection of Wisdom" sutra, handwritten on handmade Deh-sho paper with ink made from soot and botanicals.', learnMoreUrl: "/manuscripts/#prajnaparamita" },
+            { id: 3, title: 'Mandala of Compassion', type: 'Mural', monastery: 'Tashiding', image: "{% static '3.jpg' %}", description: 'This sacred geometrical painting, or Mandala, represents the celestial palace of Avalokiteshvara, the Buddha of Compassion.', learnMoreUrl: "/murals/#mandala" },
+            { id: 4, title: 'Ceremonial Dagger (Phurba)', type: 'Artifact', monastery: 'Rumtek', image: "{% static 'Phensong_Monastery.jpg' %}", description: 'The Phurba is a spiritual implement used in sacred ceremonies to subdue and pin down negative energies or obstructive demons.', learnMoreUrl: "#" },
+            { id: 5, title: 'The Wheel of Life Mural', type: 'Mural', monastery: 'Pemayangtse', image: "{% static '1.jpg' %}", description: 'The Bhavacakra is a symbolic representation of samsara, the endless cycle of birth, death, and rebirth, held by the fierce deity Yama.', learnMoreUrl: "/murals/#bhavacakra" },
+            { id: 6, title: 'Kangyur Texts', type: 'Manuscript', monastery: 'Tashiding', image: "{% static '2.jpg' %}", description: 'Pages from the Kangyur, the translated words of the Buddha himself. These texts are considered exceptionally sacred by Tibetan Buddhists.', learnMoreUrl: "/manuscripts/#kangyur" },
+        ];
+
+        // --- DOM Elements ---
+        const grid = document.getElementById('archive-grid');
+        const searchInput = document.getElementById('search-input');
+        const typeFilter = document.getElementById('type-filter');
+        const monasteryFilter = document.getElementById('monastery-filter');
+        const noResults = document.getElementById('no-results');
+        const modal = document.getElementById('archive-modal');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        
+        // --- Core Functions ---
+        function renderGrid(items) {
+            grid.innerHTML = '';
+            noResults.classList.toggle('hidden', items.length > 0);
+            items.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-xl shadow-md overflow-hidden archive-card cursor-pointer border border-stone-200';
+                card.style.animationDelay = `${index * 50}ms`;
+                card.innerHTML = `<div class="h-48 w-full overflow-hidden"><img src="${item.image}" alt="${item.title}" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"></div><div class="p-5"><h3 class="font-bold logo-font text-xl text-teal-800 truncate">${item.title}</h3><p class="text-sm text-stone-500">${item.monastery} Monastery</p></div>`;
+                card.addEventListener('click', () => openModal(item));
+                grid.appendChild(card);
+            });
+        }
+
+        function filterAndRender() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedType = typeFilter.value;
+            const selectedMonastery = monasteryFilter.value;
+            const filteredData = archiveData.filter(item => 
+                (item.title.toLowerCase().includes(searchTerm) || item.description.toLowerCase().includes(searchTerm)) && 
+                (selectedType === 'all' || item.type === selectedType) && 
+                (selectedMonastery === 'all' || item.monastery === selectedMonastery)
+            );
+            renderGrid(filteredData);
+        }
+
+        function openModal(item) {
+            document.getElementById('modal-title').textContent = item.title;
+            document.getElementById('modal-image').src = item.image;
+            document.getElementById('modal-type').textContent = item.type;
+            document.getElementById('modal-monastery').textContent = `${item.monastery} Monastery`;
+            document.getElementById('modal-description').textContent = item.description;
+            document.getElementById('learn-more-link').href = item.learnMoreUrl;
+            
+            // Update tag classes
+            const modalTypeTag = document.getElementById('modal-type');
+            modalTypeTag.className = 'tag tag-secondary'; 
+            if (item.type === 'Manuscript' || item.type === 'Mural') {
+                modalTypeTag.classList.add('tag-primary');
+            } else {
+                 modalTypeTag.classList.add('tag-secondary');
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        // --- Event Listeners ---
+        closeModalBtn.addEventListener('click', () => modal.classList.add('hidden'));
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.add('hidden'); });
+        searchInput.addEventListener('input', filterAndRender);
+        typeFilter.addEventListener('change', filterAndRender);
+        monasteryFilter.addEventListener('change', filterAndRender);
+        
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        if(mobileMenuButton) mobileMenuButton.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+        
+        // Initial render
+        renderGrid(archiveData);
+    });
+</script>
+</body>
+</html>

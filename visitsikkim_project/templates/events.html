@@ -1,0 +1,293 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cultural Events & Sacred Arts - Monastery360</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+
+
+        body { font-family: 'Inter', sans-serif; background-color: #f8f7f5; }
+        .logo-font { font-family: 'Playfair Display', serif; }
+        .nav-link { position: relative; }
+        .nav-link::after { content:''; position:absolute; width:0; height:2px; bottom:-4px; left:50%; transform:translateX(-50%); background:#0d9488; transition:width 0.3s ease; }
+        .nav-link:hover::after { width:100%; }
+        .glass-card { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
+        .custom-gradient { background: linear-gradient(135deg, #134e4a 0%, #064e3b 100%); }
+        .dot {
+            height: 12px;
+            width: 12px;
+            background-color: #cbd5e1; /* Light gray for inactive */
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .active-dot {
+            background-color: #0d9488 !important; /* Teal for active */
+            width: 24px; /* Makes it a pill shape when active */
+            border-radius: 12px;
+        }
+
+    </style>
+</head>
+<body class="antialiased text-stone-700">
+
+<header class="bg-teal-900 sticky top-0 z-50 shadow-lg">
+    <nav class="container mx-auto px-6">
+        <div class="flex items-center justify-between h-20">
+            <a href="/" class="flex items-center space-x-3">
+                <span class="text-2xl font-bold text-white logo-font">Monastery360</span>
+            </a>
+            <div class="hidden md:flex items-center h-full">
+                <a href="/" class="text-stone-200 hover:text-white font-medium nav-link px-6">Home</a>
+                <a href="/events/" class="text-white font-medium nav-link px-6">Events</a>
+                <a href="/book/" class="text-stone-200 hover:text-white font-medium nav-link px-6">Book</a>
+                <a href="/travel/" class="text-stone-200 hover:text-white font-medium nav-link px-6">Travel</a>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main>
+
+
+
+
+<section class="relative w-full h-[65vh] overflow-hidden bg-black">
+    <div id="hero-slider" class="flex w-full h-full overflow-x-scroll snap-x snap-mandatory scroll-smooth no-scrollbar">
+        
+        <div id="slide-1" class="min-w-full h-full relative snap-center flex items-center justify-center">
+            <img src="{% static 'hero1.jpg' %}" class="absolute inset-0 w-full h-full object-cover opacity-60" alt="Sacred Traditions">
+            <div class="relative z-10 text-center px-4">
+                <h1 class="text-6xl md:text-8xl font-bold logo-font text-white drop-shadow-2xl mb-4">Sacred Traditions</h1>
+                <p class="text-xl md:text-2xl text-stone-100 max-w-3xl mx-auto font-light">Journey through the living heritage of the Last Shangri-La.</p>
+            </div>
+        </div>
+
+        <div id="slide-2" class="min-w-full h-full relative snap-center flex items-center justify-center">
+            <img src="{% static 'hero.avif' %}" class="absolute inset-0 w-full h-full object-cover opacity-60" alt="Ancient Echoes">
+            <div class="relative z-10 text-center px-4">
+                <h1 class="text-6xl md:text-8xl font-bold logo-font text-white drop-shadow-2xl mb-4">Ancient Echoes</h1>
+                <p class="text-xl md:text-2xl text-stone-100 max-w-3xl mx-auto font-light">Discover the hidden chants of the Himalayas.</p>
+            </div>
+        </div>
+
+        <div id="slide-3" class="min-w-full h-full relative snap-center flex items-center justify-center">
+            <img src="{% static 'hero2.jpg' %}" class="absolute inset-0 w-full h-full object-cover opacity-60" alt="Living Culture">
+            <div class="relative z-10 text-center px-4">
+                <h1 class="text-6xl md:text-8xl font-bold logo-font text-white drop-shadow-2xl mb-4">Living Culture</h1>
+                <p class="text-xl md:text-2xl text-stone-100 max-w-3xl mx-auto font-light">Witness the vibrant mask dances of Sikkim.</p>
+            </div>
+        </div>
+
+
+            <div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex space-x-4">
+            <button onclick="scrollToSlide('slide-1', this)" class="dot h-3 w-3 rounded-full bg-white/50 hover:bg-white transition active-dot"></button>
+            <button onclick="scrollToSlide('slide-2', this)" class="dot h-3 w-3 rounded-full bg-white/50 hover:bg-white transition"></button>
+            <button onclick="scrollToSlide('slide-3', this)" class="dot h-3 w-3 rounded-full bg-white/50 hover:bg-white transition"></button>
+        </div>
+
+
+    </div>
+</section>
+
+
+<section class="bg-white py-25 md:py-40">
+        <div class="container mx-auto px-6">
+            <div class="max-w-4xl mx-auto text-center">
+                <h2 class="text-3xl font-bold text-teal-900 mb-6 logo-font">The Legend of Yoksum</h2>
+                <p class="text-stone-600 italic leading-relaxed text-lg">
+                    In 1642, three learned Lamas from Tibet met at Yoksum and consecrated Phuntsog Namgyal as the first Chogyal (King) of Sikkim. This event birthed the spiritual identity of the land, intertwining the monarchy with Buddhist Dharma.
+                </p>
+                <div class="mt-8 flex justify-center space-x-4">
+                    <span class="h-2 w-2 rounded-full bg-teal-600"></span>
+                    <span class="h-2 w-2 rounded-full bg-teal-400"></span>
+                    <span class="h-2 w-2 rounded-full bg-teal-200"></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container mx-auto px-6 py-20">
+        <div class="flex items-center space-x-4 mb-12">
+            <div class="h-1 w-12 bg-teal-600"></div>
+            <h2 class="text-3xl font-bold text-teal-900 uppercase tracking-widest">Ritual Calendar</h2>
+        </div>
+        <div class="grid lg:grid-cols-2 gap-12">
+            <div class="bg-white rounded-3xl overflow-hidden shadow-xl border border-stone-200 hover:-translate-y-2 transition duration-300">
+                <div class="p-8">
+                    <div class="flex justify-between items-start mb-6">
+                        <span class="bg-teal-100 text-teal-700 px-4 py-1 rounded-full text-xs font-bold uppercase">Tashiding Monastery</span>
+                        <span class="text-stone-400 font-bold">MARCH</span>
+                    </div>
+                    <h3 class="text-3xl font-bold text-teal-900 mb-4">Bumchu</h3>
+                    <p class="text-stone-600 leading-relaxed mb-6">A unique vessel of holy water is opened to predict the state's prosperity. If the water is clear and the vessel full, it signifies a year of peace and abundance.</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-3xl overflow-hidden shadow-xl border border-stone-200 hover:-translate-y-2 transition duration-300">
+                <div class="p-8">
+                    <div class="flex justify-between items-start mb-6">
+                        <span class="bg-emerald-100 text-emerald-700 px-4 py-1 rounded-full text-xs font-bold uppercase">Mountain Worship</span>
+                        <span class="text-stone-400 font-bold">AUGUST</span>
+                    </div>
+                    <h3 class="text-3xl font-bold text-teal-900 mb-4">Pang Lhabsol</h3>
+                    <p class="text-stone-600 leading-relaxed mb-6">A festival unique to Sikkim, paying homage to Mount Khangchendzonga as the guardian deity. It features the warrior dance performed by monks in spectacular costumes.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="custom-gradient py-20 text-white">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-3xl font-bold mb-12 logo-font">Sacred Echoes</h2>
+            <div class="grid md:grid-cols-4 gap-8">
+                <div class="p-6 bg-white/10 rounded-2xl">
+                    <i class="fa-solid fa-wind text-3xl mb-4"></i>
+                    <h4 class="font-bold mb-2">Gyaling</h4>
+                    <p class="text-xs text-teal-100">Traditional oboe-like instrument used to summon deities during rituals.</p>
+                </div>
+                <div class="p-6 bg-white/10 rounded-2xl">
+                    <i class="fa-solid fa-trumpet text-3xl mb-4"></i>
+                    <h4 class="font-bold mb-2">Dungchen</h4>
+                    <p class="text-xs text-teal-100">The long Himalayan trumpet that mimics the sound of thunder or elephants.</p>
+                </div>
+                <div class="p-6 bg-white/10 rounded-2xl">
+                    <i class="fa-solid fa-drum text-3xl mb-4"></i>
+                    <h4 class="font-bold mb-2">Nga</h4>
+                    <p class="text-xs text-teal-100">Ritual drums beaten in rhythm with sacred chanting and prayer.</p>
+                </div>
+                <div class="p-6 bg-white/10 rounded-2xl">
+                    <i class="fa-solid fa-bell text-3xl mb-4"></i>
+                    <h4 class="font-bold mb-2">Drilbu</h4>
+                    <p class="text-xs text-teal-100">The ritual bell representing wisdom and the feminine principle.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-20">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col md:flex-row items-center gap-12">
+                <div class="md:w-1/2">
+                    <h2 class="text-3xl font-bold text-teal-900 mb-6 logo-font">Nature's Festival</h2>
+                    <p class="text-stone-600 mb-6">Cultural life in Sikkim is deeply tied to the land. Every spring, the state celebrates the blooming of over 400 species of Orchids and the majestic Rhododendrons.</p>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-4 text-teal-800 font-semibold">
+                            <i class="fa-solid fa-leaf"></i> International Flower Festival (May)
+                        </div>
+                        <div class="flex items-center gap-4 text-teal-800 font-semibold">
+                            <i class="fa-solid fa-mountain-sun"></i> Varsey Rhododendron Trek (April)
+                        </div>
+                    </div>
+                </div>
+                <div class="md:w-1/2 grid grid-cols-2 gap-4 items-stretch">
+                <img src="{% static 'orchid.jpg' %}" 
+                    class="rounded-3xl shadow-lg w-full h-[500px] object-cover" 
+                    alt="Orchid">
+                
+                <img src="{% static 'm.jpg' %}" 
+                    class="rounded-3xl shadow-lg w-full h-[500px] object-cover" 
+                    alt="Mountain">
+            </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="bg-stone-50 py-20">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl font-bold text-teal-900 mb-12 text-center">Tastes of Tradition</h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-2xl border border-stone-100">
+                    <h4 class="font-bold text-teal-800 mb-2">Sel Roti</h4>
+                    <p class="text-sm text-stone-500">A ring-shaped sweet fried bread made from rice flour, essential for festivals like Tihar.</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border border-stone-100">
+                    <h4 class="font-bold text-teal-800 mb-2">Gundruk</h4>
+                    <p class="text-sm text-stone-500">Fermented leafy greens that are a staple in every Sikkimese household.</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border border-stone-100">
+                    <h4 class="font-bold text-teal-800 mb-2">Butter Tea</h4>
+                    <p class="text-sm text-stone-500">Known as *Su-cha*, this salty tea is served to monks and guests during monastery visits.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container mx-auto px-6 py-20">
+        <div class="bg-teal-900 rounded-[3rem] p-12 text-white shadow-2xl">
+            <div class="text-center max-w-2xl mx-auto mb-12">
+                <h2 class="text-4xl font-bold logo-font mb-4">Spiritual Etiquette</h2>
+                <p class="text-teal-100">Honoring the sanctity of the monastic space.</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8 text-center">
+                <div>
+                    <i class="fa-solid fa-shoe-prints text-3xl text-teal-400 mb-4"></i>
+                    <p class="text-sm">Remove footwear before entering any shrine or prayer hall.</p>
+                </div>
+                <div>
+                    <i class="fa-solid fa-hand-holding-heart text-3xl text-teal-400 mb-4"></i>
+                    <p class="text-sm">Make small donations or light a butter lamp as a gesture of respect.</p>
+                </div>
+                <div>
+                    <i class="fa-solid fa-volume-low text-3xl text-teal-400 mb-4"></i>
+                    <p class="text-sm">Maintain silence and avoid using mobile phones inside temples.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="bg-teal-950 text-stone-400 py-12 text-center">
+    <div class="container mx-auto px-6">
+        <p class="logo-font text-white text-xl mb-4">Monastery360</p>
+        <p class="text-xs uppercase tracking-widest mb-4">Established 2026 • Preservation through Technology</p>
+        <div class="flex justify-center space-x-6 text-xl mb-8">
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-facebook"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+        </div>
+        <p class="text-xs">&copy; 2026 Monastery360. All Rights Reserved.</p>
+    </div>
+</footer>
+
+
+<script>
+    const slider = document.getElementById('hero-slider');
+    const dots = document.querySelectorAll('.dot');
+
+    // Function for when a user CLICKS a dot
+    function scrollToSlide(slideId, btn) {
+        const slide = document.getElementById(slideId);
+        slider.scrollTo({
+            left: slide.offsetLeft,
+            behavior: 'smooth'
+        });
+    }
+
+    // Logic to update dots when a user SCROLLS manually
+    slider.addEventListener('scroll', () => {
+        const scrollLeft = slider.scrollLeft;
+        const width = slider.offsetWidth;
+        
+        // Calculate which slide index is currently visible
+        const activeIndex = Math.round(scrollLeft / width);
+        
+        // Update the active-dot class
+        dots.forEach((dot, index) => {
+            if (index === activeIndex) {
+                dot.classList.add('active-dot');
+            } else {
+                dot.classList.remove('active-dot');
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

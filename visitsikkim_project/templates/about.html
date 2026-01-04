@@ -1,0 +1,125 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us - Monastery360</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f7f5; }
+        .logo-font { font-family: 'Playfair Display', serif; }
+        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); }
+        .custom-gradient { background: linear-gradient(135deg, #134e4a 0%, #064e3b 100%); }
+        .nav-link { position: relative; }
+        .nav-link::after { content:''; position:absolute; width:0; height:2px; bottom:-4px; left:50%; transform:translateX(-50%); background:#0d9488; transition:width 0.3s ease; }
+        .nav-link:hover::after { width:100%; }
+    </style>
+</head>
+<body class="antialiased text-stone-700">
+
+<header class="bg-teal-900 sticky top-0 z-50 shadow-lg">
+    <nav class="container mx-auto px-6">
+        <div class="flex items-center justify-between h-20">
+            <a href="/" class="flex items-center space-x-3">
+                <span class="text-2xl font-bold text-white logo-font">Monastery360</span>
+            </a>
+            <div class="hidden md:flex items-center h-full">
+                <a href="/" class="text-stone-200 hover:text-white font-medium nav-link px-6">Home</a>
+                <a href="/interactive/" class="text-stone-200 hover:text-white font-medium nav-link px-6">Maps</a>
+                <a href="/archives/" class="text-white font-medium nav-link px-6"> Archives </a>
+                <a href="/login/" class="bg-teal-600 text-white font-semibold px-5 py-2 rounded-lg hover:bg-teal-700 transition duration-300">Login</a>
+
+            </div>
+        </div>
+    </nav>
+</header>
+
+<main>
+   
+   <section class="relative w-full h-[80vh] flex items-center justify-center overflow-hidden">
+    
+    <div class="absolute inset-0 z-0">
+        <img src="{% static 'mo.jpg' %}" 
+             class="w-full h-full object-cover opacity-60" 
+             alt="Background">
+        <div class="absolute inset-0 bg-gradient-to-b from-white/10 via-transparent to-[#f8f7f5]"></div>
+    </div>
+
+    <div class="container mx-auto px-6 relative z-10 text-center">
+        <h1 class="text-6xl md:text-8xl font-bold logo-font text-teal-900 mb-6 drop-shadow-sm">
+            Our Mission
+        </h1>
+        
+        <p class="text-xl md:text-2xl text-teal-900 max-w-3xl mx-auto font-medium leading-relaxed mb-10">
+            Preserving the spiritual heritage of the Himalayas through digital storytelling and immersive technology.
+        </p>
+
+    </div>
+</section>
+
+
+    <section class="py-20 ">
+        <div class="container mx-auto px-6 ">
+            <div class="flex flex-col md:flex-row items-center gap-16">
+                <div class="md:w-1/2">
+                    <h2 class="text-4xl font-bold text-teal-900 mb-8 logo-font">Guardians of Shangri-La</h2>
+                    <p class="text-lg text-stone-600 leading-relaxed mb-6">
+                        Monastery360 was born in 2025 from a deep respect for the sacred traditions of Sikkim. We believe that technology should not replace tradition, but rather serve as a bridge to protect it for future generations.
+                    </p>
+                    <p class="text-lg text-stone-600 leading-relaxed">
+                        By documenting the architecture, rituals, and daily lives within these ancient monasteries, we provide a window into a world of peace and profound wisdom.
+                    </p>
+                </div>
+                <div class="md:w-1/2">
+                    <div class="relative">
+                        <img src="{% static 'mo2.jpg' %}" class="rounded-3xl shadow-2xl relative z-10 w-full h-[500px] object-cover" alt="Monastery View">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="bg-stone-100 py-20">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white p-10 rounded-3xl shadow-sm hover:shadow-md transition">
+                    <div class="text-teal-600 text-3xl mb-4"><i class="fa-solid fa-camera-retro"></i></div>
+                    <h3 class="text-xl font-bold text-teal-900 mb-3 logo-font">Immersive Documentation</h3>
+                    <p class="text-stone-500">Using 360-degree photography to capture every intricate detail of sacred murals and statues.</p>
+                </div>
+                <div class="bg-white p-10 rounded-3xl shadow-sm hover:shadow-md transition">
+                    <div class="text-teal-600 text-3xl mb-4"><i class="fa-solid fa-book-open"></i></div>
+                    <h3 class="text-xl font-bold text-teal-900 mb-3 logo-font">Cultural Education</h3>
+                    <p class="text-stone-500">Providing context and history for the rituals that have defined the Himalayan spirit for centuries.</p>
+                </div>
+                <div class="bg-white p-10 rounded-3xl shadow-sm hover:shadow-md transition">
+                    <div class="text-teal-600 text-3xl mb-4"><i class="fa-solid fa-leaf"></i></div>
+                    <h3 class="text-xl font-bold text-teal-900 mb-3 logo-font">Sustainable Tourism</h3>
+                    <p class="text-stone-500">Encouraging respectful visits that support local monastic communities and ecology.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-24 custom-gradient text-white">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-4xl font-bold logo-font mb-6">Experience the Silence</h2>
+            <p class="text-teal-100 mb-10 text-lg max-w-xl mx-auto">Discover the events that bring these mountains to life.</p>
+            <a href="/events/" class="inline-block bg-white text-teal-900 px-10 py-4 rounded-full font-bold uppercase tracking-widest hover:bg-teal-50 transition">Explore Events</a>
+        </div>
+    </section>
+</main>
+
+<footer class="bg-teal-950 text-stone-400 py-12 text-center">
+    <div class="container mx-auto px-6">
+        <p class="logo-font text-white text-xl mb-4">Monastery360</p>
+        <p class="text-xs uppercase tracking-widest mb-4">Established 2025 • Preservation through Technology</p>
+        <p class="text-xs">&copy; 2025 Monastery360. All Rights Reserved.</p>
+    </div>
+</footer>
+
+</body>
+</html>
