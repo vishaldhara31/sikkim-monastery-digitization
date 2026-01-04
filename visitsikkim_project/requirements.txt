@@ -1,6 +1,7 @@
-django
-pillow
+Django>=4.2
+Pillow
 requests
 python-dotenv
 python-decouple
 psycopg2-binary
+dj-database-url
